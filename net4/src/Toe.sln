@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toe.App", "Toe.App\Toe.App.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toe.Core.Tests", "Toe.Core.Tests\Toe.Core.Tests.csproj", "{26DB6CA4-C8AD-4D8E-9D38-A0D7675D12C1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toe.CubeScene", "Toe.CubeScene\Toe.CubeScene.csproj", "{B3A0C849-B8A4-45AC-83FF-37323388C8D0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +73,16 @@ Global
 		{26DB6CA4-C8AD-4D8E-9D38-A0D7675D12C1}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{26DB6CA4-C8AD-4D8E-9D38-A0D7675D12C1}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{26DB6CA4-C8AD-4D8E-9D38-A0D7675D12C1}.Release|x86.ActiveCfg = Release|Any CPU
+		{B3A0C849-B8A4-45AC-83FF-37323388C8D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3A0C849-B8A4-45AC-83FF-37323388C8D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3A0C849-B8A4-45AC-83FF-37323388C8D0}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{B3A0C849-B8A4-45AC-83FF-37323388C8D0}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{B3A0C849-B8A4-45AC-83FF-37323388C8D0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B3A0C849-B8A4-45AC-83FF-37323388C8D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3A0C849-B8A4-45AC-83FF-37323388C8D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3A0C849-B8A4-45AC-83FF-37323388C8D0}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{B3A0C849-B8A4-45AC-83FF-37323388C8D0}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{B3A0C849-B8A4-45AC-83FF-37323388C8D0}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -34,6 +34,9 @@
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.0.12054\lib\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="OpenTK">
+      <HintPath>..\packages\OpenTK.1.0.0.0\lib\OpenTK.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -53,6 +56,10 @@
     <ProjectReference Include="..\Toe.Core\Toe.Core.csproj">
       <Project>{0BF607DF-49E7-46D4-A02A-AEEE0AF004D9}</Project>
       <Name>Toe.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Toe.CubeScene\Toe.CubeScene.csproj">
+      <Project>{B3A0C849-B8A4-45AC-83FF-37323388C8D0}</Project>
+      <Name>Toe.CubeScene</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

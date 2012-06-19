@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using OpenTK;
-
 using Toe.Core.Messages;
 
 namespace Toe.Core
@@ -13,10 +11,6 @@ namespace Toe.Core
 	/// </summary>
 	public class GameWorld : IDisposable
 	{
-		private readonly ClassRegistry classRegistry;
-
-		private readonly IEnumerable<IGameSubsystem> gameSubsystems;
-
 		#region Constants and Fields
 
 		/// <summary>
@@ -29,7 +23,11 @@ namespace Toe.Core
 		/// </summary>
 		internal GameObject[] Objects;
 
+		private readonly ClassRegistry classRegistry;
+
 		private readonly Queue<GameComponent> componentsTrashQueue = new Queue<GameComponent>();
+
+		private readonly IEnumerable<IGameSubsystem> gameSubsystems;
 
 		private readonly Queue<MessageArgs> messageQueue = new Queue<MessageArgs>();
 
@@ -44,7 +42,6 @@ namespace Toe.Core
 		private int firstGarbage;
 
 		private int firstMovedObject;
-		private int lastMovedObject;
 
 		/// <summary>
 		/// Index of the first occupied element.
@@ -63,6 +60,8 @@ namespace Toe.Core
 		/// </summary>
 		private int lastGarbage;
 
+		private int lastMovedObject;
+
 		/// <summary>
 		/// Index of the last occupied element.
 		/// </summary>
@@ -76,12 +75,11 @@ namespace Toe.Core
 		/// Initializes a new instance of the <see cref="GameWorld"/> class.
 		/// </summary>
 		/// <param name="size">
-		///   The size of game world - number of game object slots.
+		/// The size of game world - number of game object slots.
 		/// </param>
-		/// <param name="classRegistry"> </param>
-		/// <param name="gameSubsystems"> </param>
-		/// <param name="fabrics">
-		/// The fabrics.
+		/// <param name="classRegistry">
+		/// </param>
+		/// <param name="gameSubsystems">
 		/// </param>
 		public GameWorld(int size, ClassRegistry classRegistry, IEnumerable<IGameSubsystem> gameSubsystems)
 		{
@@ -132,9 +130,7 @@ namespace Toe.Core
 		{
 			while (this.firstOccupied != 0)
 			{
-				this.Destroy(
-					new GameObjectReference(this.firstOccupied, this.Objects[this.firstOccupied].Uid), 
-					ref this.Objects[this.firstOccupied]);
+				this.Destroy(this.firstOccupied, ref this.Objects[this.firstOccupied]);
 			}
 		}
 
@@ -150,9 +146,9 @@ namespace Toe.Core
 			{
 				this.Resize(this.Objects.Length * 2);
 			}
-
 			var r = this.firstAvailable;
 			this.MakeOccupiedFromAvailable(r);
+
 			return new GameObjectReference(r, this.Objects[r].Uid);
 		}
 
@@ -174,89 +170,15 @@ namespace Toe.Core
 		/// </summary>
 		public void ProcessGame()
 		{
-			while (this.messageQueue.Count > 0 || this.firstGarbage != 0)
+			while (this.messageQueue.Count > 0 || this.firstGarbage != 0 || this.firstMovedObject != 0 || this.componentsTrashQueue.Count > 0)
 			{
 				this.ProcessMessages();
+
+				this.ProcessPositionChanged();
 
 				this.CollectGarbage();
 
 				this.DisposeComponents();
-			}
-		}
-		private void ProcessPositionChanged()
-		{
-			while (this.firstMovedObject != 0)
-			{
-				ProcessPositionChanged(this.firstMovedObject, ref this.Objects[firstMovedObject]);
-			}
-		}
-
-		private void ProcessPositionChanged(int index, ref GameObject gameObject)
-		{
-			gameObject.IsMoved = false;
-			gameObject.DetachFromMoved(index, ref this.firstMovedObject, ref this.lastMovedObject, this);
-			this.UpdateWorldPosition(this, ref gameObject);
-		}
-
-		private void UpdateWorldPosition(GameWorld gameWorld, ref GameObject gameObject)
-		{
-			if (gameObject.Parent != 0) 
-				this.EnsureParentWorldPosition(gameObject.Parent, ref this.Objects[gameObject.Parent], ref gameObject);
-			else
-			{
-				gameObject.Origin.WorldPosition = gameObject.Origin.Position;
-				gameObject.Origin.WorldRotation = gameObject.Origin.Rotation;
-			}
-			for (int i = 0; i < gameObject.Slots.Length; i++)
-			{
-				SendPositionChanged(ref gameObject, ref gameObject.Slots[0]);
-			}
-		}
-
-		private void SendPositionChanged(ref GameObject gameObject, ref GameComponentSlot gameComponentSlot)
-		{
-			if (gameComponentSlot.Component != 0) gameComponentSlot.GameComponent.OnPositionChanged(ref	gameObject.Origin);
-		}
-
-		private void EnsureParentWorldPosition(int index, ref GameObject gameObject, ref GameObject child)
-		{
-			if (gameObject.IsMoved) this.ProcessPositionChanged(index, ref gameObject);
-
-			Vector3.Transform(ref child.Origin.Position, ref gameObject.Origin.WorldRotation, out child.Origin.WorldPosition);
-			// TODO: check if the order is right
-			Quaternion.Multiply(ref child.Origin.Rotation, ref gameObject.Origin.WorldRotation, out child.Origin.Rotation);
-		}
-
-		private void ProcessMessages()
-		{
-			while (this.messageQueue.Count > 0)
-			{
-				var msg = this.messageQueue.Dequeue();
-				if (msg.DestinationObject.IsNil)
-				{
-					this.BroadcastGlobalMessage(msg);
-				}
-				else
-				{
-					this.BroadcastLocalMessage(msg.DestinationObject.Index, ref this.Objects[msg.DestinationObject.Index], msg);
-				}
-			}
-		}
-
-		private void DisposeComponents()
-		{
-			while (this.componentsTrashQueue.Count > 0)
-			{
-				this.componentsTrashQueue.Dequeue().Dispose();
-			}
-		}
-
-		private void CollectGarbage()
-		{
-			// Collect garbage.
-			while (this.firstGarbage != 0)
-			{
-				this.MakeAvailableFromGarbage(this.firstGarbage);
 			}
 		}
 
@@ -329,6 +251,61 @@ namespace Toe.Core
 			msg.DestinationComponent = component;
 			return msg;
 		}
+		public void DetachObject(GameObjectReference index)
+		{
+			if (index.IsNil)
+				return;
+			this.DetachObject(index, ref this.Objects[index.Index]);
+		}
+
+		private void DetachObject(GameObjectReference index, ref GameObject gameObject)
+		{
+			if (index.Uid != gameObject.Uid)
+				return;
+			if (gameObject.Parent == 0)
+				return;
+
+			// TODO: update world position by don't notify yet
+			this.UpdateWorldPositionAndNotifyComponents(ref gameObject);
+
+			gameObject.DetachNode(index.Index, this);
+
+			gameObject.Origin.UpdateLocalPositionByWorldPosition();
+
+			this.EnqueuePositionChanged(index.Index, ref gameObject);
+		}
+
+		public void AttachObject(GameObjectReference child,GameObjectReference parent)
+		{
+			if (child.IsNil || parent.IsNil)
+				return;
+			this.AttachObject(child, ref this.Objects[child.Index], parent, ref this.Objects[parent.Index]);
+		}
+
+		private void AttachObject(GameObjectReference child, ref GameObject childObject, GameObjectReference parent, ref GameObject parentObject)
+		{
+			if (child.Uid != childObject.Uid)
+				return;
+			if (parent.Uid != parentObject.Uid)
+				return;
+
+			// TODO: update world position by don't notify yet
+			if (childObject.IsMoved)
+				this.UpdateWorldPositionAndNotifyComponents(ref childObject);
+
+			if (childObject.Parent != 0)
+				childObject.DetachNode(child.Index, this);
+
+			// TODO: update world position by don't notify yet
+			if (parentObject.IsMoved)
+				this.UpdateWorldPositionAndNotifyComponents(ref parentObject);
+
+			childObject.AttachNodeTail(child.Index, parent.Index, ref parentObject, this);
+
+			childObject.Origin.UpdateLocalPosition(parentObject.Origin);
+
+			this.EnqueuePositionChanged(child.Index, ref childObject);
+		}
 
 		#endregion
 
@@ -342,9 +319,9 @@ namespace Toe.Core
 		/// </param>
 		protected virtual void Dispose(bool disposing)
 		{
-			while (firstOccupied != 0)
+			while (this.firstOccupied != 0)
 			{
-				this.Destroy(new GameObjectReference(firstOccupied, this.Objects[firstOccupied].Uid), ref this.Objects[firstOccupied]);
+				this.Destroy(this.firstOccupied, ref this.Objects[this.firstOccupied]);
 			}
 
 			this.CollectGarbage();
@@ -441,6 +418,15 @@ namespace Toe.Core
 			return true;
 		}
 
+		private void CollectGarbage()
+		{
+			// Collect garbage.
+			while (this.firstGarbage != 0)
+			{
+				this.MakeAvailableFromGarbage(this.firstGarbage);
+			}
+		}
+
 		private void CreateComponent(MessageArgs msg)
 		{
 			msg.IsHandled = true;
@@ -480,19 +466,26 @@ namespace Toe.Core
 			gameComponentSlot.Slot = messageArgs.DestinationComponentSlot;
 		}
 
-		private void Destroy(GameObjectReference index, ref GameObject gameObject)
+		private void Destroy(int index, ref GameObject gameObject)
 		{
 			if (!gameObject.IsOccupied)
 			{
 				return;
 			}
 
+			while (gameObject.FirstChild != 0)
+			{
+				this.Destroy(gameObject.FirstChild, ref this.Objects[gameObject.FirstChild]);
+			}
+
+			gameObject.DetachNode(index, this);
+
 			for (int i = 0; i < gameObject.Slots.Length; ++i)
 			{
 				this.DestroyComponent(ref gameObject.Slots[i]);
 			}
 
-			this.MakeGarbageFromOccupied(index.Index);
+			this.MakeGarbageFromOccupied(index, ref gameObject);
 			++gameObject.Uid;
 		}
 
@@ -526,10 +519,12 @@ namespace Toe.Core
 			}
 		}
 
-		private void InitGameObject(int current, ref GameObject gameObject)
+		private void DisposeComponents()
 		{
-			gameObject.AttachTail(current, ref this.firstAvailable, ref this.lastAvailable, this);
-			gameObject.Init();
+			while (this.componentsTrashQueue.Count > 0)
+			{
+				this.componentsTrashQueue.Dequeue().Dispose();
+			}
 		}
 
 		////private void MakeAvailable(int current)
@@ -537,34 +532,104 @@ namespace Toe.Core
 		////    this.Objects[current].State = GameObjectState.Available;
 		////    this.Objects[current].AttachTail(current, ref this.firstAvailable, ref this.lastAvailable, this);
 		////}
-
 		private void EnqueuePositionChanged(int current, ref GameObject gameObject)
 		{
 			if (gameObject.IsMoved)
+			{
 				return;
+			}
+
 			gameObject.IsMoved = true;
-			gameObject.AttachToMoved(current, ref firstMovedObject, ref lastMovedObject, this);
+			gameObject.AttachToMoved(current, ref this.firstMovedObject, ref this.lastMovedObject, this);
+		}
+
+		private void EnsureParentWorldPosition(int index, ref GameObject gameObject, ref GameObject child)
+		{
+			if (gameObject.IsMoved)
+			{
+				this.ProcessPositionChanged(index, ref gameObject);
+			}
+
+			child.Origin.UpdateWorldPosition(ref gameObject.Origin);
+		}
+
+		private void InitGameObject(int current, ref GameObject gameObject)
+		{
+			gameObject.AttachTail(current, ref this.firstAvailable, ref this.lastAvailable, this);
+			gameObject.Init();
 		}
 
 		private void MakeAvailableFromGarbage(int current)
 		{
-			this.Objects[current].IsAvailable = true;
-			this.Objects[current].Detach(current, ref this.firstGarbage, ref this.lastGarbage, this);
-			this.Objects[current].AttachTail(current, ref this.firstAvailable, ref this.lastAvailable, this);
+			this.MakeAvailableFromGarbage(current, ref this.Objects[current]);
+		}
+
+		private void MakeAvailableFromGarbage(int current, ref GameObject gameObject)
+		{
+			gameObject.IsAvailable = true;
+			gameObject.Detach(current, ref this.firstGarbage, ref this.lastGarbage, this);
+			gameObject.AttachTail(current, ref this.firstAvailable, ref this.lastAvailable, this);
 		}
 
 		private void MakeGarbageFromOccupied(int current)
 		{
-			this.Objects[current].IsGarbage = true;
-			this.Objects[current].Detach(current, ref this.firstOccupied, ref this.lastOccupied, this);
-			this.Objects[current].AttachTail(current, ref this.firstGarbage, ref this.lastGarbage, this);
+			this.MakeGarbageFromOccupied(current, ref this.Objects[current]);
+		}
+
+		private void MakeGarbageFromOccupied(int current, ref GameObject gameObject)
+		{
+			if (gameObject.IsMoved)
+			{
+				gameObject.IsMoved = false;
+				gameObject.DetachFromMoved(current, ref this.firstMovedObject, ref this.lastMovedObject, this);
+			}
+
+			gameObject.IsGarbage = true;
+			gameObject.Detach(current, ref this.firstOccupied, ref this.lastOccupied, this);
+			gameObject.AttachTail(current, ref this.firstGarbage, ref this.lastGarbage, this);
 		}
 
 		private void MakeOccupiedFromAvailable(int current)
 		{
-			this.Objects[current].IsOccupied = true;
-			this.Objects[current].Detach(current, ref this.firstAvailable, ref this.lastAvailable, this);
-			this.Objects[current].AttachTail(current, ref this.firstOccupied, ref this.lastOccupied, this);
+			this.MakeOccupiedFromAvailable(current, ref this.Objects[current]);
+		}
+
+		private void MakeOccupiedFromAvailable(int current, ref GameObject gameObject)
+		{
+			gameObject.IsOccupied = true;
+			gameObject.Detach(current, ref this.firstAvailable, ref this.lastAvailable, this);
+			gameObject.AttachTail(current, ref this.firstOccupied, ref this.lastOccupied, this);
+		}
+
+		private void ProcessMessages()
+		{
+			while (this.messageQueue.Count > 0)
+			{
+				var msg = this.messageQueue.Dequeue();
+				if (msg.DestinationObject.IsNil)
+				{
+					this.BroadcastGlobalMessage(msg);
+				}
+				else
+				{
+					this.BroadcastLocalMessage(msg.DestinationObject.Index, ref this.Objects[msg.DestinationObject.Index], msg);
+				}
+			}
+		}
+
+		private void ProcessPositionChanged()
+		{
+			while (this.firstMovedObject != 0)
+			{
+				this.ProcessPositionChanged(this.firstMovedObject, ref this.Objects[this.firstMovedObject]);
+			}
+		}
+
+		private void ProcessPositionChanged(int index, ref GameObject gameObject)
+		{
+			gameObject.IsMoved = false;
+			gameObject.DetachFromMoved(index, ref this.firstMovedObject, ref this.lastMovedObject, this);
+			this.UpdateWorldPositionAndNotifyComponents(ref gameObject);
 		}
 
 		private bool SendMessage(int index, ref GameObject gameObject, MessageArgs msg)
@@ -643,7 +708,7 @@ namespace Toe.Core
 			switch (msg.MessageNameHash)
 			{
 				case WellKnownMessages.DestroyObject:
-					this.Destroy(new GameObjectReference(index, gameObject.Uid), ref gameObject);
+					this.Destroy(index, ref gameObject);
 					msg.IsHandled = true;
 					return true;
 				case WellKnownMessages.SetPosition:
@@ -667,6 +732,37 @@ namespace Toe.Core
 			}
 
 			return false;
+		}
+
+		private void SendPositionChanged(ref GameObject gameObject, ref GameComponentSlot gameComponentSlot)
+		{
+			if (gameComponentSlot.Component != 0)
+			{
+				gameComponentSlot.GameComponent.OnPositionChanged(ref gameObject.Origin);
+			}
+		}
+
+		private void UpdateWorldPositionAndNotifyComponents(ref GameObject gameObject)
+		{
+			this.UpdateWorldPosition(ref gameObject);
+
+			for (int i = 0; i < gameObject.Slots.Length; i++)
+			{
+				this.SendPositionChanged(ref gameObject, ref gameObject.Slots[0]);
+			}
+		}
+
+		private void UpdateWorldPosition(ref GameObject gameObject)
+		{
+			if (gameObject.Parent != 0)
+			{
+				this.EnsureParentWorldPosition(gameObject.Parent, ref this.Objects[gameObject.Parent], ref gameObject);
+			}
+			else
+			{
+				gameObject.Origin.WorldPosition = gameObject.Origin.Position;
+				gameObject.Origin.WorldRotation = gameObject.Origin.Rotation;
+			}
 		}
 
 		#endregion

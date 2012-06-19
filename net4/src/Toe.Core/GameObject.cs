@@ -1,7 +1,5 @@
 using OpenTK;
 
-using Toe.Core.Messages;
-
 namespace Toe.Core
 {
 	/// <summary>
@@ -17,16 +15,6 @@ namespace Toe.Core
 		public const int NumSlots = 8;
 
 		/// <summary>
-		/// Unique identifier.
-		/// </summary>
-		internal int Uid;
-
-		/// <summary>
-		/// Game object state.
-		/// </summary>
-		internal GameObjectFlag State;
-
-		/// <summary>
 		/// Next sibling in world collection.
 		/// </summary>
 		internal int CollectionNext;
@@ -35,9 +23,6 @@ namespace Toe.Core
 		/// Previous sibling in world collection.
 		/// </summary>
 		internal int CollectionPrev;
-
-		internal int MovedPrev;
-		internal int MovedNext;
 
 		/// <summary>
 		/// First child.
@@ -49,10 +34,16 @@ namespace Toe.Core
 		/// </summary>
 		internal int LastChild;
 
+		internal int MovedNext;
+
+		internal int MovedPrev;
+
 		/// <summary>
 		/// Next sibling.
 		/// </summary>
 		internal int Next;
+
+		internal GameOrigin Origin;
 
 		/// <summary>
 		/// Parent game object.
@@ -66,77 +57,131 @@ namespace Toe.Core
 
 		internal GameComponentSlot[] Slots;
 
-		internal GameOrigin Origin;
+		/// <summary>
+		/// Game object state.
+		/// </summary>
+		internal GameObjectFlag State;
 
-		public bool IsOccupied
-		{
-			get
-			{
-				return (State & GameObjectFlag.AvailabilityMask) == GameObjectFlag.Occupied;
-			}
-			set
-			{
-				State = (State & ~GameObjectFlag.AvailabilityMask) | GameObjectFlag.Occupied;
-			}
-		}
+		/// <summary>
+		/// Unique identifier.
+		/// </summary>
+		internal int Uid;
 
+		#endregion
+
+		#region Public Properties
+
+		/// <summary>
+		/// Gets or sets a value indicating whether IsAvailable.
+		/// </summary>
 		public bool IsAvailable
 		{
 			get
 			{
-				return (State & GameObjectFlag.AvailabilityMask) == GameObjectFlag.Available;
+				return (this.State & GameObjectFlag.AvailabilityMask) == GameObjectFlag.Available;
 			}
+
 			set
 			{
-				State = (State & ~GameObjectFlag.AvailabilityMask) | GameObjectFlag.Available;
+				this.State = (this.State & ~GameObjectFlag.AvailabilityMask) | GameObjectFlag.Available;
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets a value indicating whether IsGarbage.
+		/// </summary>
 		public bool IsGarbage
 		{
 			get
 			{
-				return (State & GameObjectFlag.AvailabilityMask) == GameObjectFlag.Garbage;
+				return (this.State & GameObjectFlag.AvailabilityMask) == GameObjectFlag.Garbage;
 			}
+
 			set
 			{
-				State = (State & ~GameObjectFlag.AvailabilityMask) | GameObjectFlag.Garbage;
+				this.State = (this.State & ~GameObjectFlag.AvailabilityMask) | GameObjectFlag.Garbage;
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets a value indicating whether IsMoved.
+		/// </summary>
 		public bool IsMoved
 		{
 			get
 			{
-				return (State & GameObjectFlag.Moved) == GameObjectFlag.Moved;
+				return (this.State & GameObjectFlag.Moved) == GameObjectFlag.Moved;
 			}
+
 			set
 			{
 				if (value)
-					State |= GameObjectFlag.Moved;
+				{
+					this.State |= GameObjectFlag.Moved;
+				}
 				else
-					State &= ~GameObjectFlag.Moved;
+				{
+					this.State &= ~GameObjectFlag.Moved;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Gets or sets a value indicating whether IsOccupied.
+		/// </summary>
+		public bool IsOccupied
+		{
+			get
+			{
+				return (this.State & GameObjectFlag.AvailabilityMask) == GameObjectFlag.Occupied;
+			}
+
+			set
+			{
+				this.State = (this.State & ~GameObjectFlag.AvailabilityMask) | GameObjectFlag.Occupied;
 			}
 		}
 
 		#endregion
 
-		#region Constructors and Destructors
+		#region Public Methods and Operators
 
-		internal void Init()
+		/// <summary>
+		/// The detach from moved.
+		/// </summary>
+		/// <param name="index">
+		/// The index.
+		/// </param>
+		/// <param name="first">
+		/// The first.
+		/// </param>
+		/// <param name="last">
+		/// The last.
+		/// </param>
+		/// <param name="world">
+		/// The world.
+		/// </param>
+		public void DetachFromMoved(int index, ref int first, ref int last, GameWorld world)
 		{
-			this.State = GameObjectFlag.Available;
-			this.CollectionPrev = 0;
-			this.CollectionNext = 0;
-			this.FirstChild = 0;
-			this.LastChild = 0;
-			this.Next = 0;
-			this.Parent = 0;
-			this.Prev = 0;
-			this.Uid = 0;
-			this.Origin.Position = Vector3.Zero;
-			this.Origin.Rotation = Quaternion.Identity;
-			this.Slots = new GameComponentSlot[NumSlots];
+			if (last == index)
+			{
+				last = this.MovedPrev;
+			}
+
+			if (first == index)
+			{
+				first = this.MovedNext;
+			}
+
+			if (this.MovedPrev != 0)
+			{
+				world.Objects[this.MovedPrev].MovedNext = this.MovedNext;
+			}
+
+			if (this.MovedNext != 0)
+			{
+				world.Objects[this.MovedNext].MovedPrev = this.MovedPrev;
+			}
 		}
 
 		#endregion
@@ -211,28 +256,67 @@ namespace Toe.Core
 			}
 		}
 
+		internal void Init()
+		{
+			this.State = GameObjectFlag.Available;
+			this.CollectionPrev = 0;
+			this.CollectionNext = 0;
+			this.FirstChild = 0;
+			this.LastChild = 0;
+			this.Next = 0;
+			this.Parent = 0;
+			this.Prev = 0;
+			this.Uid = 0;
+			this.Origin.Position = Vector3.Zero;
+			this.Origin.Rotation = Quaternion.Identity;
+			this.Slots = new GameComponentSlot[NumSlots];
+		}
+
 		#endregion
 
-		public void DetachFromMoved(int index, ref int first, ref int last, GameWorld world)
+		public void DetachNode(int index, GameWorld gameWorld)
 		{
-			if (last == index)
-			{
-				last = this.MovedPrev;
-			}
+			if (Parent == 0)
+				return;
 
-			if (first == index)
-			{
-				first = this.MovedNext;
-			}
+			this.DetachNode(index, gameWorld, ref gameWorld.Objects[Parent]);
+		}
 
-			if (this.MovedPrev != 0)
+		private void DetachNode(int index, GameWorld gameWorld, ref GameObject parent)
+		{
+			if (this.Next != 0)
 			{
-				world.Objects[this.MovedPrev].MovedNext = this.MovedNext;
+				gameWorld.Objects[this.Next].Prev = this.Prev;
 			}
-
-			if (this.MovedNext != 0)
+			if (this.Prev != 0)
 			{
-				world.Objects[this.MovedNext].MovedPrev = this.MovedPrev;
+				gameWorld.Objects[this.Prev].Next = this.Next;
+			}
+			if (parent.FirstChild == index)
+			{
+				parent.FirstChild = this.Next;
+			}
+			if (parent.LastChild == index)
+			{
+				parent.LastChild = this.Prev;
+			}
+			Parent = 0;
+			Next = 0;
+			Prev = 0;
+		}
+
+		public void AttachNodeTail(int index, int parent, ref GameObject parentObject, GameWorld world)
+		{
+			this.Prev = parentObject.LastChild;
+			this.Next = 0;
+			parentObject.LastChild = index;
+			if (parentObject.FirstChild == 0)
+			{
+				parentObject.FirstChild = index;
+			}
+			else
+			{
+				world.Objects[this.Prev].Next = index;
 			}
 		}
 	}

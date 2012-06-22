@@ -1,0 +1,15 @@
+option strict
+
+includepath
+{
+    include
+}
+
+files
+{
+	[source]
+	(source)
+	
+	[include]
+	(include)
+}

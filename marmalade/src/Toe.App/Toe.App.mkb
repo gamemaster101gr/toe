@@ -1,0 +1,28 @@
+#!/usr/bin/env mkb
+
+option 
+{
+	#strict
+	s3e-data-dir="../../../data" 
+}
+
+
+files
+{
+	(source)
+	main.cpp
+}
+
+subprojects
+{
+	iwgx
+	iwutil
+	iwgraphics
+	iwanim
+    ../Toe.Core/Toe.Core.mkf
+}
+
+assets
+{
+    (../../../data)
+}

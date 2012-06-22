@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{771410D2-5DA9-4173-A6B2-109A0A3CDC25}</ProjectGuid>
+    <ProjectGuid>{A3AD90C9-B010-478F-B58D-A8E68E20D3B9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Toe.Marmalade.Anim</RootNamespace>
-    <AssemblyName>Toe.Marmalade.Anim</AssemblyName>
+    <RootNamespace>Toe.Marmalade.Tests</RootNamespace>
+    <AssemblyName>Toe.Marmalade.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -17,7 +17,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\debug\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -25,7 +25,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\release\</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -34,7 +34,9 @@
     <Reference Include="Autofac">
       <HintPath>..\packages\Autofac.2.6.1.841\lib\NET40\Autofac.dll</HintPath>
     </Reference>
-    <Reference Include="OpenTK, Version=1.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL" />
+    <Reference Include="nunit.framework">
+      <HintPath>..\packages\NUnit.2.6.0.12054\lib\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -44,23 +46,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AnimModule.cs" />
-    <Compile Include="CIwAnim.cs" />
-    <Compile Include="CIwAnimBone.cs" />
-    <Compile Include="CIwAnimPlayer.cs" />
-    <Compile Include="CIwAnimSkel.cs" />
-    <Compile Include="CIwAnimSkin.cs" />
-    <Compile Include="CIwAnimSkinSet.cs" />
-    <Compile Include="CIwResHandlerANIM.cs" />
-    <Compile Include="CIwResHandlerSKEL.cs" />
-    <Compile Include="CIwResHandlerSKIN.cs" />
-    <Compile Include="CIwResTemplateANIM.cs" />
-    <Compile Include="CIwResTemplateSKEL.cs" />
-    <Compile Include="CIwResTemplateSKIN.cs" />
-    <Compile Include="IwAnim.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Serialization\BaseTest.cs" />
+    <Compile Include="Serialization\PlaneTypes.cs" />
+    <Compile Include="Serialization\ResourceGroup.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Toe.Marmalade.Anim\Toe.Marmalade.Anim.csproj">
+      <Project>{771410D2-5DA9-4173-A6B2-109A0A3CDC25}</Project>
+      <Name>Toe.Marmalade.Anim</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Toe.Marmalade.ResManager\Toe.Marmalade.ResManager.csproj">
+      <Project>{324F8F53-DC53-4F0C-A2B6-07F3F88A7D46}</Project>
+      <Name>Toe.Marmalade.ResManager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Toe.Marmalade.Util\Toe.Marmalade.Util.csproj">
       <Project>{013C07CD-50DB-4D24-94C3-895599F8219A}</Project>
       <Name>Toe.Marmalade.Util</Name>
@@ -69,6 +68,21 @@
       <Project>{89231B56-490E-4AFE-B765-E82A7C9A4FF2}</Project>
       <Name>Toe.Marmalade</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestData\bool.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestData\empty.group.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestData\int32.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestData\managedobject_bone.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestData\squat.bin" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

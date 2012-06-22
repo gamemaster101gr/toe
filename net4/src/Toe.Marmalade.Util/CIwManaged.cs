@@ -4,11 +4,39 @@ namespace Toe.Marmalade.Util
 {
 	public class CIwManaged : CIwParseable
 	{
-		public uint m_Hash;
+		private uint hash;
+
+		public uint Hash
+		{
+			get
+			{
+				return this.hash;
+			}
+			set
+			{
+				this.hash = value;
+			}
+		}
+
+		private uint nameHash;
+
+		public uint NameHash
+		{
+			get
+			{
+				return this.nameHash;
+			}
+			set
+			{
+				this.nameHash = value;
+			}
+		}
+
 		public virtual string GetClassName()
 		{
 			return this.GetType().Name;
 		}
+		
 		public virtual bool HandleEvent(CIwEvent pEvent)
 		{
 			return false;
@@ -37,8 +65,9 @@ namespace Toe.Marmalade.Util
 		public virtual void Resolve()
 		{
 		}
-		public virtual void Serialise()
+		public virtual void Serialise(IwSerialise serialise)
 		{
+			serialise.UInt32(ref nameHash);
 		}
 		public virtual void SetName(string pName)
 		{

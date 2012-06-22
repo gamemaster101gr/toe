@@ -12,6 +12,8 @@ namespace Toe.Marmalade
 		/// </summary>
 		public const uint S3EHashInitial = 5381;
 
+		public const int IwGeomOne = (1 << 12);
+
 		/// <summary>
 		/// Case insensetive hash.
 		/// </summary>

@@ -44,9 +44,9 @@ namespace Toe.Marmalade.Util
 		/// <returns>
 		/// The create.
 		/// </returns>
-		public object Create()
+		public CIwManaged Create()
 		{
-			return this.context.CreateInstance(this.type);
+			return (CIwManaged)this.context.CreateInstance(this.type);
 		}
 
 		#endregion

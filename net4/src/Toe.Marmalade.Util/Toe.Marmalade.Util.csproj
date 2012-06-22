@@ -34,6 +34,7 @@
     <Reference Include="Autofac">
       <HintPath>..\packages\Autofac.2.6.1.841\lib\NET40\Autofac.dll</HintPath>
     </Reference>
+    <Reference Include="OpenTK, Version=1.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -46,11 +47,14 @@
     <Compile Include="AutofacActivator.cs" />
     <Compile Include="CIwEvent.cs" />
     <Compile Include="CIwManaged.cs" />
+    <Compile Include="CIwManagedList.cs" />
     <Compile Include="CIwManagedRefCount.cs" />
     <Compile Include="CIwParseable.cs" />
     <Compile Include="CIwResource.cs" />
     <Compile Include="CIwTextParserITX.cs" />
     <Compile Include="IwSerialise.cs" />
+    <Compile Include="IwSerialiseBinaryBlock.cs" />
+    <Compile Include="IwSerialiseMode.cs" />
     <Compile Include="IwUtil.cs" />
     <Compile Include="ClassRegistry.cs" />
     <Compile Include="IwClassFactory.cs" />

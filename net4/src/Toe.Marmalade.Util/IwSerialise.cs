@@ -1,21 +1,120 @@
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Text;
+
+using OpenTK;
 
 namespace Toe.Marmalade.Util
 {
 	/// <summary>
 	/// The iw serialise.
 	/// </summary>
-	public static class IwSerialise
+	public class IwSerialise : IDisposable
 	{
 		#region Constants and Fields
 
-		private static BinaryReader reader;
+		private readonly byte[] buffer = new byte[4];
 
-		private static BinaryWriter writer;
+		private readonly IwSerialiseMode mode;
+
+		private readonly ClassRegistry classRegistry;
+
+		private readonly Stream stream;
+
+		private bool isDisposed;
+
+		#endregion
+
+		#region Constructors and Destructors
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="IwSerialise"/> class.
+		/// </summary>
+		/// <param name="stream">
+		/// The stream.
+		/// </param>
+		/// <param name="mode">
+		/// The mode.
+		/// </param>
+		public IwSerialise(Stream stream, IwSerialiseMode mode, ClassRegistry classRegistry)
+		{
+			this.stream = stream;
+			this.mode = mode;
+			this.classRegistry = classRegistry;
+		}
+
+		/// <summary>
+		/// Finalizes an instance of the <see cref="IwSerialise"/> class. 
+		/// </summary>
+		~IwSerialise()
+		{
+			this.Dispose(false);
+		}
+
+		public long Position
+		{
+			get
+			{
+				return stream.Position;
+			}
+			set
+			{
+				stream.Position = value;
+			}
+		}
 
 		#endregion
 
 		#region Public Methods and Operators
+
+		/// <summary>
+		/// The open.
+		/// </summary>
+		/// <param name="filePath">
+		/// The file path.
+		/// </param>
+		/// <param name="read">
+		/// The read.
+		/// </param>
+		/// <param name="ram">
+		/// The ram.
+		/// </param>
+		/// <returns>
+		/// </returns>
+		public static IwSerialise Open(string filePath, bool read, ClassRegistry classRegistry, bool ram = false)
+		{
+			return Open(filePath, read ? IwSerialiseMode.Read : IwSerialiseMode.Write, classRegistry, ram);
+		}
+
+		/// <summary>
+		/// The open.
+		/// </summary>
+		/// <param name="filePath">
+		/// The file path.
+		/// </param>
+		/// <param name="mode">
+		/// The mode.
+		/// </param>
+		/// <param name="ram">
+		/// The ram.
+		/// </param>
+		/// <returns>
+		/// </returns>
+		/// <exception cref="ArgumentOutOfRangeException">
+		/// </exception>
+		public static IwSerialise Open(string filePath, IwSerialiseMode mode, ClassRegistry classRegistry, bool ram = false)
+		{
+			switch (mode)
+			{
+				case IwSerialiseMode.Read:
+					return new IwSerialise(File.OpenRead(FindFilePath(filePath, ram)), mode, classRegistry);
+				case IwSerialiseMode.Write:
+					return new IwSerialise(File.OpenWrite(FindFilePath(filePath, ram)), mode, classRegistry);
+				default:
+					throw new ArgumentOutOfRangeException("mode");
+			}
+		}
 
 		/// <summary>
 		/// The bool.
@@ -23,52 +122,168 @@ namespace Toe.Marmalade.Util
 		/// <param name="val">
 		/// The val.
 		/// </param>
-		public static void Bool(ref bool val)
+		public void Bool(ref bool val)
 		{
-			if (writer != null)
+			if (this.mode == IwSerialiseMode.Read)
 			{
-				writer.Write(val);
+				this.ReadInfoBuffer(1);
+				val = this.buffer[0] != 0;
 			}
-			else if (reader != null)
+			else
 			{
-				val = reader.ReadBoolean();
+				this.buffer[0] = (byte)(val ? 1 : 0);
+				this.stream.Write(this.buffer, 0, 1);
+
 			}
 		}
 
+		private void LookUp()
+		{
+			
+				new BinaryWriter(stream).Write((uint)1234);
+				new BinaryReader(stream).ReadUInt32();
+		}
+
+		public void ManagedObject  (ref CIwManaged pObj)
+		{
+			if (this.mode == IwSerialiseMode.Read)
+			{
+				uint hash = 0;
+				this.UInt32(ref hash);
+				pObj = (CIwManaged)classRegistry.Get(hash).Create();
+			}
+			else
+			{
+				uint hash = pObj.Hash;
+				this.UInt32(ref hash);
+			}
+			pObj.Serialise(this);
+
+		}
+
+		public void Int32(ref int val)
+		{
+			if (this.mode == IwSerialiseMode.Read)
+			{ 
+				this.ReadInfoBuffer(4);
+				val = (int)(buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer[3] << 24);
+			}
+			else
+			{
+				this.buffer[0] = (byte)val;
+				this.buffer[1] = (byte)(val >> 8);
+				this.buffer[2] = (byte)(val >> 16);
+				this.buffer[3] = (byte)(val >> 24);
+				this.stream.Write(this.buffer, 0, 4); 
+			}
+		}
+
+		public void UInt32(ref uint val)
+		{
+			if (this.mode == IwSerialiseMode.Read)
+			{
+				this.ReadInfoBuffer(4);
+				val = (uint)(buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer[3] << 24); 
+			}
+			else
+			{
+				this.buffer[0] = (byte)val;
+				this.buffer[1] = (byte)(val >> 8);
+				this.buffer[2] = (byte)(val >> 16);
+				this.buffer[3] = (byte)(val >> 24);
+				this.stream.Write(this.buffer, 0, 4);
+			}
+		}
+
+		public void UInt16(ref ushort val)
+		{
+			if (this.mode == IwSerialiseMode.Read)
+			{
+				this.ReadInfoBuffer(2);
+				val = (ushort)(buffer[0] | buffer[1] << 8);
+			}
+			else
+			{
+				this.buffer[0] = (byte)val;
+				this.buffer[1] = (byte)(val >> 8);
+				this.stream.Write(this.buffer, 0, 2);
+			}
+		}
+		public void Int16(ref short val)
+		{
+			if (this.mode == IwSerialiseMode.Read)
+			{
+				this.ReadInfoBuffer(2);
+				val = (short)(buffer[0] | buffer[1] << 8);
+			}
+			else
+			{
+				this.buffer[0] = (byte)val;
+				this.buffer[1] = (byte)(val >> 8);
+				this.stream.Write(this.buffer, 0, 2);
+			}
+		}
+		public void UInt8(ref byte val)
+		{
+			if (this.mode == IwSerialiseMode.Read)
+			{
+				this.ReadInfoBuffer(1);
+				val = (byte)(buffer[0]);
+			}
+			else
+			{
+				this.buffer[0] = (byte)val;
+				this.stream.Write(this.buffer, 0, 1);
+			}
+		}
+		public void Int8(ref sbyte val)
+		{
+			if (this.mode == IwSerialiseMode.Read)
+			{
+				this.ReadInfoBuffer(1);
+				val = (sbyte)(buffer[0]);
+			}
+			else
+			{
+				this.buffer[0] = (byte)val;
+				this.stream.Write(this.buffer, 0, 1);
+			}
+		}
 		/// <summary>
 		/// The char.
 		/// </summary>
 		/// <param name="val">
 		/// The val.
 		/// </param>
-		public static void Char(ref char val)
+		public void Char(ref char val)
 		{
-			if (writer != null)
+			if (this.IsReading())
 			{
-				writer.Write(val);
+				this.ReadInfoBuffer(1);
+				val = (char)(buffer[0]);
 			}
-			else if (reader != null)
+			else
 			{
-				val = reader.ReadChar();
+				var l = Encoding.UTF8.GetBytes(new char[] { val }, 0, 1, buffer, 0);
+				this.stream.Write(this.buffer, 0, l);
 			}
 		}
 
 		/// <summary>
 		/// The close.
 		/// </summary>
-		public static void Close()
+		public void Close()
 		{
-			if (reader != null)
-			{
-				reader.Close();
-				reader = null;
-			}
+			stream.Close();
+		}
 
-			if (writer != null)
-			{
-				writer.Close();
-				writer = null;
-			}
+		/// <summary>
+		/// The dispose.
+		/// </summary>
+		public void Dispose()
+		{
+			this.Dispose(true);
+			GC.SuppressFinalize(this);
 		}
 
 		/// <summary>
@@ -77,9 +292,9 @@ namespace Toe.Marmalade.Util
 		/// <returns>
 		/// The is open.
 		/// </returns>
-		public static bool IsOpen()
+		public bool IsOpen()
 		{
-			return writer != null || reader != null;
+			return this.stream != null;
 		}
 
 		/// <summary>
@@ -88,9 +303,9 @@ namespace Toe.Marmalade.Util
 		/// <returns>
 		/// The is reading.
 		/// </returns>
-		public static bool IsReading()
+		public bool IsReading()
 		{
-			return reader != null;
+			return this.mode == IwSerialiseMode.Read;
 		}
 
 		/// <summary>
@@ -99,9 +314,87 @@ namespace Toe.Marmalade.Util
 		/// <returns>
 		/// The is writing.
 		/// </returns>
-		public static bool IsWriting()
+		public bool IsWriting()
 		{
-			return writer != null;
+			return this.mode == IwSerialiseMode.Write;
+		}
+
+		#endregion
+
+		#region Methods
+
+		/// <summary>
+		/// The dispose.
+		/// </summary>
+		/// <param name="b">
+		/// The b.
+		/// </param>
+		protected virtual void Dispose(bool b)
+		{
+			if (this.isDisposed)
+			{
+				return;
+			}
+
+			this.isDisposed = true;
+
+			if (this.stream != null)
+			{
+				this.stream.Dispose();
+			}
+		}
+
+		/// <summary>
+		/// The read info buffer.
+		/// </summary>
+		/// <param name="numBytes">
+		/// The num bytes.
+		/// </param>
+		/// <exception cref="ArgumentOutOfRangeException">
+		/// </exception>
+		protected virtual void ReadInfoBuffer(int numBytes)
+		{
+			if (numBytes < 0 || numBytes > this.buffer.Length)
+			{
+				throw new ArgumentOutOfRangeException("numBytes");
+			}
+
+			int bytesRead = 0;
+			int n = 0;
+
+			if (numBytes == 1)
+			{
+				n = this.stream.ReadByte();
+				if (n == -1)
+				{
+					this.EndOfFile();
+				}
+
+				this.buffer[0] = (byte)n;
+				return;
+			}
+
+			do
+			{
+				n = this.stream.Read(this.buffer, bytesRead, numBytes - bytesRead);
+				if (n == 0)
+				{
+					this.EndOfFile();
+				}
+
+				bytesRead += n;
+			}
+			while (bytesRead < numBytes);
+		}
+
+		private static string FindFilePath(string filePath, bool ram)
+		{
+			return filePath;
+		}
+
+		private void EndOfFile()
+		{
+			throw new System.IO.EndOfStreamException();
 		}
 
 		#endregion
@@ -117,7 +410,8 @@ namespace Toe.Marmalade.Util
 		// ushort  GetUserVersion () 
 		// void  short (short ref var, int n=1, int numBits=sizeof(short)*8-1, int stride=sizeof(short)) 
 		// void  shortBitDepthRequired (short ref var, int n=1, int stride=sizeof(short)) 
-		// void  int (int ref var, int n=1, int numBits=sizeof(int)*8-1, int stride=sizeof(int)) 
+	
+
 		// void  intBitDepthRequired (int ref var, int n=1, int stride=sizeof(int)) 
 		// void  long (long ref var, int n=1, int numBits=sizeof(long)*8-1, int stride=sizeof(long)) 
 		// void  sbyte (sbyte ref var, int n=1, int numBits=sizeof(sbyte)*8-1, int stride=sizeof(sbyte)) 
@@ -141,5 +435,60 @@ namespace Toe.Marmalade.Util
 		// void  Ulong (ulong ref var, int n=1, int numBits=sizeof(ulong)*8, int stride=sizeof(ulong)) 
 		// void  byte (byte ref var, int n=1, int numBits=sizeof(byte)*8, int stride=sizeof(byte)) 
 		// void  byteBitDepthRequired (byte ref var, int n=1, int stride=sizeof(byte)) 
+		public void SQuat(ref Quaternion rot)
+		{
+			uint unknown=0;
+			this.UInt32(ref unknown);
+		}
+
+		public void Quat(ref Quaternion rot)
+		{
+			int f = 0;
+			this.Int32(ref f);
+			rot.W = (float)f / S3E.IwGeomOne;
+			this.Int32(ref f);
+			rot.X = (float)f / S3E.IwGeomOne;
+			this.Int32(ref f);
+			rot.Y = (float)f / S3E.IwGeomOne;
+			this.Int32(ref f);
+			rot.Z = (float)f / S3E.IwGeomOne;
+		}
+
+		public void SVec3(ref Vector3 pos)
+		{
+			short x = (short)(pos.X*S3E.IwGeomOne);
+			short y =(short)( pos.Y*S3E.IwGeomOne);
+			short z = (short)(pos.Z*S3E.IwGeomOne);
+			Int16(ref x);
+			Int16(ref y);
+			Int16(ref z);
+			pos.X = (float)x / S3E.IwGeomOne;
+		}
+
+		public void String(ref string s)
+		{
+			if (this.IsReading())
+			{
+				char c = ' ';
+				StringBuilder sb = new StringBuilder();
+				for (; ; )
+				{
+					this.Char(ref c);
+					if (c == '\0')
+					{
+						s = sb.ToString();
+						return;
+					}
+					sb.Append(c);
+				}
+			}
+			else
+			{
+				var buf = Encoding.UTF8.GetBytes(s);
+				stream.Write(buf,0,buf.Length);
+				byte zero = 0;
+				this.UInt8(ref zero);
+			}
+		}
 	}
 }

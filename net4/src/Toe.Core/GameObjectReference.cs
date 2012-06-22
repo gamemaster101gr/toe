@@ -42,6 +42,17 @@ namespace Toe.Core
 		}
 
 		/// <summary>
+		/// Gets or sets a value indicating whether index is pointing to empty object.
+		/// </summary>
+		public bool IsNil
+		{
+			get
+			{
+				return this.index == 0;
+			}
+		}
+
+		/// <summary>
 		/// Gets unique identifier.
 		/// </summary>
 		public int Uid
@@ -52,15 +63,93 @@ namespace Toe.Core
 			}
 		}
 
-		public bool IsNil
+		#endregion
+
+		#region Public Methods and Operators
+
+		/// <summary>
+		/// The == operator.
+		/// </summary>
+		/// <param name="left">
+		/// The left.
+		/// </param>
+		/// <param name="right">
+		/// The right.
+		/// </param>
+		/// <returns>
+		/// </returns>
+		public static bool operator ==(GameObjectReference left, GameObjectReference right)
 		{
-			get
+			return left.Equals(right);
+		}
+
+		/// <summary>
+		/// The != operator.
+		/// </summary>
+		/// <param name="left">
+		/// The left.
+		/// </param>
+		/// <param name="right">
+		/// The right.
+		/// </param>
+		/// <returns>
+		/// </returns>
+		public static bool operator !=(GameObjectReference left, GameObjectReference right)
+		{
+			return !left.Equals(right);
+		}
+
+		/// <summary>
+		/// Indicates whether this instance and a specified object are equal.
+		/// </summary>
+		/// <param name="other">
+		/// The other.
+		/// </param>
+		/// <returns>
+		/// The equals.
+		/// </returns>
+		public bool Equals(GameObjectReference other)
+		{
+			return other.index == this.index && other.uid == this.uid;
+		}
+
+		/// <summary>
+		/// Indicates whether this instance and a specified object are equal.
+		/// </summary>
+		/// <returns>
+		/// True if <paramref name="obj"/> and this instance are the same type and represent the same value; otherwise, false.
+		/// </returns>
+		/// <param name="obj">
+		/// Another object to compare to. 
+		/// </param>
+		/// <filterpriority>2</filterpriority>
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj))
 			{
-				return index == 0;
+				return false;
 			}
-			set
+
+			if (obj.GetType() != typeof(GameObjectReference))
 			{
-				throw new System.NotImplementedException();
+				return false;
+			}
+
+			return this.Equals((GameObjectReference)obj);
+		}
+
+		/// <summary>
+		/// Returns the hash code for this instance.
+		/// </summary>
+		/// <returns>
+		/// A 32-bit signed integer that is the hash code for this instance.
+		/// </returns>
+		/// <filterpriority>2</filterpriority>
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				return (this.index * 397) ^ this.uid;
 			}
 		}
 

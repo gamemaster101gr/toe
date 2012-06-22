@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Toe.Core.Messages;
+using Toe.Marmalade;
+using Toe.Marmalade.Util;
 
 namespace Toe.Core
 {
@@ -22,6 +24,8 @@ namespace Toe.Core
 		/// Array of game Objects.
 		/// </summary>
 		internal GameObject[] Objects;
+
+		private int numOfAvailable = 0;
 
 		private readonly ClassRegistry classRegistry;
 
@@ -74,15 +78,14 @@ namespace Toe.Core
 		/// <summary>
 		/// Initializes a new instance of the <see cref="GameWorld"/> class.
 		/// </summary>
-		/// <param name="size">
-		/// The size of game world - number of game object slots.
-		/// </param>
 		/// <param name="classRegistry">
 		/// </param>
 		/// <param name="gameSubsystems">
 		/// </param>
-		public GameWorld(int size, ClassRegistry classRegistry, IEnumerable<IGameSubsystem> gameSubsystems)
+		public GameWorld(ClassRegistry classRegistry, IEnumerable<IGameSubsystem> gameSubsystems)
 		{
+			int size = 65535;
+
 			this.classRegistry = classRegistry;
 
 			this.gameSubsystems = gameSubsystems.ToArray();
@@ -162,6 +165,7 @@ namespace Toe.Core
 			{
 				this.isDisposed = true;
 				this.Dispose(true);
+				GC.SuppressFinalize(this);
 			}
 		}
 
@@ -190,19 +194,20 @@ namespace Toe.Core
 		/// </param>
 		public void Resize(int numObjects)
 		{
-			int current = this.Objects.Length;
-			if (current >= numObjects)
-			{
-				return;
-			}
+			throw new NotImplementedException();
+			//int current = this.Objects.Length;
+			//if (current >= numObjects)
+			//{
+			//    return;
+			//}
 
-			Array.Resize(ref this.Objects, numObjects);
+			//Array.Resize(ref this.Objects, numObjects);
 
-			while (current < numObjects)
-			{
-				this.InitGameObject(current, ref this.Objects[current]);
-				++current;
-			}
+			//while (current < numObjects)
+			//{
+			//    this.InitGameObject(current, ref this.Objects[current]);
+			//    ++current;
+			//}
 		}
 
 		/// <summary>
@@ -458,7 +463,7 @@ namespace Toe.Core
 
 		private void CreateComponentAtSlot(ref GameComponentSlot gameComponentSlot, MessageArgs messageArgs)
 		{
-			var gameComponent = (GameComponent)this.classRegistry.CreateInstance(messageArgs.DestinationComponent);
+			var gameComponent = (GameComponent)this.classRegistry.Get(messageArgs.DestinationComponent).Create();
 			gameComponent.GameObject = messageArgs.DestinationObject;
 			gameComponent.Slot = messageArgs.DestinationComponentSlot;
 			gameComponentSlot.GameComponent = gameComponent;
@@ -556,6 +561,7 @@ namespace Toe.Core
 		private void InitGameObject(int current, ref GameObject gameObject)
 		{
 			gameObject.AttachTail(current, ref this.firstAvailable, ref this.lastAvailable, this);
+			++numOfAvailable;
 			gameObject.Init();
 		}
 
@@ -567,6 +573,7 @@ namespace Toe.Core
 		private void MakeAvailableFromGarbage(int current, ref GameObject gameObject)
 		{
 			gameObject.IsAvailable = true;
+			++numOfAvailable;
 			gameObject.Detach(current, ref this.firstGarbage, ref this.lastGarbage, this);
 			gameObject.AttachTail(current, ref this.firstAvailable, ref this.lastAvailable, this);
 		}
@@ -583,7 +590,7 @@ namespace Toe.Core
 				gameObject.IsMoved = false;
 				gameObject.DetachFromMoved(current, ref this.firstMovedObject, ref this.lastMovedObject, this);
 			}
-
+			
 			gameObject.IsGarbage = true;
 			gameObject.Detach(current, ref this.firstOccupied, ref this.lastOccupied, this);
 			gameObject.AttachTail(current, ref this.firstGarbage, ref this.lastGarbage, this);
@@ -596,6 +603,7 @@ namespace Toe.Core
 
 		private void MakeOccupiedFromAvailable(int current, ref GameObject gameObject)
 		{
+			--numOfAvailable;
 			gameObject.IsOccupied = true;
 			gameObject.Detach(current, ref this.firstAvailable, ref this.lastAvailable, this);
 			gameObject.AttachTail(current, ref this.firstOccupied, ref this.lastOccupied, this);
@@ -734,7 +742,7 @@ namespace Toe.Core
 			return false;
 		}
 
-		private void SendPositionChanged(ref GameObject gameObject, ref GameComponentSlot gameComponentSlot)
+		private static void SendPositionChanged(ref GameObject gameObject, ref GameComponentSlot gameComponentSlot)
 		{
 			if (gameComponentSlot.Component != 0)
 			{
@@ -748,7 +756,7 @@ namespace Toe.Core
 
 			for (int i = 0; i < gameObject.Slots.Length; i++)
 			{
-				this.SendPositionChanged(ref gameObject, ref gameObject.Slots[0]);
+				SendPositionChanged(ref gameObject, ref gameObject.Slots[0]);
 			}
 		}
 
@@ -766,5 +774,13 @@ namespace Toe.Core
 		}
 
 		#endregion
+
+		public int NumOfAvailable
+		{
+			get
+			{
+				return numOfAvailable;
+			}
+		}
 	}
 }

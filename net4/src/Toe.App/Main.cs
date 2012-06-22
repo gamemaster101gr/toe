@@ -1,9 +1,12 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 using Autofac;
 using Autofac.Configuration;
 
 using Toe.Core;
+using Toe.Marmalade;
 
 namespace Toe.App
 {
@@ -21,7 +24,11 @@ namespace Toe.App
 			var builder = new ContainerBuilder();
 			builder.RegisterModule(new ConfigurationSettingsReader());
 			var container = builder.Build();
-
+			foreach (var module in container.Resolve<IEnumerable<IMarmaladeModule>>())
+			{
+				Debug.WriteLine(module.GetType().FullName);
+			}
+			
 			container.Resolve<IToeApplication>().Run();
 		}
 	}

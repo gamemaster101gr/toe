@@ -1,11 +1,15 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+
+using Autofac;
 
 using NUnit.Framework;
 
 using OpenTK;
 
 using Toe.Core.Messages;
-using Toe.CubeScene;
+using Toe.Marmalade;
 
 namespace Toe.Core.Tests
 {
@@ -23,31 +27,44 @@ namespace Toe.Core.Tests
 		[Test]
 		public void Test1()
 		{
-			var classRegistry = new ClassRegistry();
-			var scene = new CubeSceneSubsystem();
-			scene.RegisterTypes(classRegistry);
-			var w = new GameWorld(3, classRegistry, new IGameSubsystem[] { scene });
+			var builder = new ContainerBuilder();
+			builder.RegisterModule<Toe.Core.CoreModule>();
+			builder.RegisterModule<Toe.Marmalade.Util.UtilModule>();
+			builder.RegisterModule<Toe.Marmalade.ResManager.ResManagerModule>();
+			builder.RegisterModule<Toe.Marmalade.Gx.GxModule>();
+			builder.RegisterModule<Toe.Marmalade.Graphics.GraphicsModule>();
+			builder.RegisterModule<Toe.Marmalade.Anim.AnimModule>();
+			var container = builder.Build();
+			foreach (var module in container.Resolve<IEnumerable<IMarmaladeModule>>())
+			{
+				Debug.WriteLine(module.GetType().FullName);
+			}
+
+			var w = container.Resolve<GameWorld>();
+			var available = w.NumOfAvailable;
 			var i1 = w.CreateObject();
 			Assert.AreEqual(1, i1.Index);
 			var i2 = w.CreateObject();
 			Assert.AreEqual(2, i2.Index);
 			var i3 = w.CreateObject();
 			Assert.AreEqual(3, i3.Index);
-			w.SendMessageToObjectComponentAtSlot<CreateComponent>(i2, GameWorld.GraphicsSlot, typeof(Level).Name.ToeHash());
+			Assert.AreEqual(available-3,  w.NumOfAvailable);
+			//w.SendMessageToObjectComponentAtSlot<CreateComponent>(i2, GameWorld.GraphicsSlot, typeof(Level).Name.ToeHash());
 			w.SendMessageToObject<DestroyObject>(i2);
-			w.SendMessageToObjectComponentAtSlot<CreateComponent>(i1, GameWorld.GraphicsSlot, typeof(Camera).Name.ToeHash());
+			//w.SendMessageToObjectComponentAtSlot<CreateComponent>(i1, GameWorld.GraphicsSlot, typeof(Camera).Name.ToeHash());
 			w.SendMessageToObject<SetPosition>(i1).Position = new Vector3(1, 2, 3);
 			w.ProcessGame();
 
 			w.SendMessageToObject<DestroyObject>(i1);
 			w.SendMessageToObject<DestroyObject>(i3);
 			w.ProcessGame();
-			i1 = w.CreateObject();
-			Assert.AreEqual(2, i1.Index);
-			i2 = w.CreateObject();
-			Assert.AreEqual(1, i2.Index);
-			i3 = w.CreateObject();
-			Assert.AreEqual(3, i3.Index);
+			Assert.AreEqual(available, w.NumOfAvailable);
+			////i1 = w.CreateObject();
+			////Assert.AreEqual(2, i1.Index);
+			////i2 = w.CreateObject();
+			////Assert.AreEqual(1, i2.Index);
+			////i3 = w.CreateObject();
+			////Assert.AreEqual(3, i3.Index);
 		}
 
 		#endregion

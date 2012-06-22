@@ -1,3 +1,5 @@
+using Toe.Marmalade;
+
 namespace Toe.Core
 {
 	/// <summary>
@@ -5,6 +7,5 @@ namespace Toe.Core
 	/// </summary>
 	public interface IGameSubsystem
 	{
-		void RegisterTypes(ClassRegistry registry);
 	}
 }

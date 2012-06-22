@@ -6,7 +6,7 @@ namespace Toe.Core
 	/// Game object state.
 	/// </summary>
 	[Flags]
-	public enum GameObjectFlag
+	public enum GameObjectFlags
 	{
 		/// <summary>
 		/// Available object.

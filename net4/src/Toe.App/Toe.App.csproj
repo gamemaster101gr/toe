@@ -64,5 +64,9 @@
       <Project>{114C2D39-9D1B-48B8-850B-F52902CDBC47}</Project>
       <Name>Toe.Game</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Toe.Marmalade\Toe.Marmalade.csproj">
+      <Project>{89231B56-490E-4AFE-B765-E82A7C9A4FF2}</Project>
+      <Name>Toe.Marmalade</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

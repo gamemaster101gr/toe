@@ -31,6 +31,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Autofac, Version=2.6.1.841, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL" />
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.0.12054\lib\nunit.framework.dll</HintPath>
     </Reference>
@@ -57,9 +58,29 @@
       <Project>{0BF607DF-49E7-46D4-A02A-AEEE0AF004D9}</Project>
       <Name>Toe.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Toe.CubeScene\Toe.CubeScene.csproj">
-      <Project>{B3A0C849-B8A4-45AC-83FF-37323388C8D0}</Project>
-      <Name>Toe.CubeScene</Name>
+    <ProjectReference Include="..\Toe.Marmalade.Anim\Toe.Marmalade.Anim.csproj">
+      <Project>{771410D2-5DA9-4173-A6B2-109A0A3CDC25}</Project>
+      <Name>Toe.Marmalade.Anim</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Toe.Marmalade.Graphics\Toe.Marmalade.Graphics.csproj">
+      <Project>{97677725-0026-486D-BC63-A30B512DCDCA}</Project>
+      <Name>Toe.Marmalade.Graphics</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Toe.Marmalade.Gx\Toe.Marmalade.Gx.csproj">
+      <Project>{E8BDD1BF-F90E-4137-9ECC-C848BA785263}</Project>
+      <Name>Toe.Marmalade.Gx</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Toe.Marmalade.ResManager\Toe.Marmalade.ResManager.csproj">
+      <Project>{324F8F53-DC53-4F0C-A2B6-07F3F88A7D46}</Project>
+      <Name>Toe.Marmalade.ResManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Toe.Marmalade.Util\Toe.Marmalade.Util.csproj">
+      <Project>{013C07CD-50DB-4D24-94C3-895599F8219A}</Project>
+      <Name>Toe.Marmalade.Util</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Toe.Marmalade\Toe.Marmalade.csproj">
+      <Project>{89231B56-490E-4AFE-B765-E82A7C9A4FF2}</Project>
+      <Name>Toe.Marmalade</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -45,7 +45,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClassRegistry.cs" />
     <Compile Include="CoreModule.cs" />
     <Compile Include="GameComponent.cs" />
     <Compile Include="GameComponentSlot.cs" />
@@ -66,7 +65,16 @@
     <Compile Include="Messages\SetRotation.cs" />
     <Compile Include="Messages\WellKnownMessages.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ToeEx.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Toe.Marmalade.Util\Toe.Marmalade.Util.csproj">
+      <Project>{013C07CD-50DB-4D24-94C3-895599F8219A}</Project>
+      <Name>Toe.Marmalade.Util</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Toe.Marmalade\Toe.Marmalade.csproj">
+      <Project>{89231B56-490E-4AFE-B765-E82A7C9A4FF2}</Project>
+      <Name>Toe.Marmalade</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

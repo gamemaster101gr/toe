@@ -92,6 +92,114 @@ namespace Toe.Core
 		#region Public Methods and Operators
 
 		/// <summary>
+		/// The ==.
+		/// </summary>
+		/// <param name="left">
+		/// The left.
+		/// </param>
+		/// <param name="right">
+		/// The right.
+		/// </param>
+		/// <returns>
+		/// </returns>
+		public static bool operator ==(GameOrigin left, GameOrigin right)
+		{
+			return left.Equals(right);
+		}
+
+		/// <summary>
+		/// The !=.
+		/// </summary>
+		/// <param name="left">
+		/// The left.
+		/// </param>
+		/// <param name="right">
+		/// The right.
+		/// </param>
+		/// <returns>
+		/// </returns>
+		public static bool operator !=(GameOrigin left, GameOrigin right)
+		{
+			return !left.Equals(right);
+		}
+
+		/// <summary>
+		/// The equals.
+		/// </summary>
+		/// <param name="other">
+		/// The other.
+		/// </param>
+		/// <returns>
+		/// The equals.
+		/// </returns>
+		public bool Equals(GameOrigin other)
+		{
+			return other.position.Equals(this.position) && other.rotation.Equals(this.rotation);
+		}
+
+		/// <summary>
+		/// Indicates whether this instance and a specified object are equal.
+		/// </summary>
+		/// <returns>
+		/// True if <paramref name="obj"/> and this instance are the same type and represent the same value; otherwise, false.
+		/// </returns>
+		/// <param name="obj">
+		/// Another object to compare to. 
+		/// </param>
+		/// <filterpriority>2</filterpriority>
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj))
+			{
+				return false;
+			}
+
+			if (obj.GetType() != typeof(GameOrigin))
+			{
+				return false;
+			}
+
+			return this.Equals((GameOrigin)obj);
+		}
+
+		/// <summary>
+		/// Returns the hash code for this instance.
+		/// </summary>
+		/// <returns>
+		/// A 32-bit signed integer that is the hash code for this instance.
+		/// </returns>
+		/// <filterpriority>2</filterpriority>
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				return (this.position.GetHashCode() * 397) ^ this.rotation.GetHashCode();
+			}
+		}
+
+		/// <summary>
+		/// The update local position.
+		/// </summary>
+		/// <param name="parent">
+		/// The parent.
+		/// </param>
+		/// <exception cref="NotImplementedException">
+		/// </exception>
+		public void UpdateLocalPosition(GameOrigin parent)
+		{
+			throw new NotImplementedException();
+		}
+
+		/// <summary>
+		/// The update local position by world position.
+		/// </summary>
+		public void UpdateLocalPositionByWorldPosition()
+		{
+			this.position = this.worldPosition;
+			this.rotation = this.worldRotation;
+		}
+
+		/// <summary>
 		/// The update world position.
 		/// </summary>
 		/// <param name="origin">
@@ -106,16 +214,5 @@ namespace Toe.Core
 		}
 
 		#endregion
-
-		public void UpdateLocalPosition(GameOrigin parent)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void UpdateLocalPositionByWorldPosition()
-		{
-			this.position = this.worldPosition;
-			this.rotation = this.worldRotation;
-		}
 	}
 }

@@ -8,8 +8,8 @@ namespace Toe.Core
 	{
 		protected override void Load(ContainerBuilder builder)
 		{
+			builder.RegisterType<GameWorld>().SingleInstance();
 			base.Load(builder);
-			builder.RegisterType<ClassRegistry>().SingleInstance();
 		}
 	}
 }

@@ -60,7 +60,7 @@ namespace Toe.Core
 		/// <summary>
 		/// Game object state.
 		/// </summary>
-		internal GameObjectFlag State;
+		internal GameObjectFlags State;
 
 		/// <summary>
 		/// Unique identifier.
@@ -78,12 +78,12 @@ namespace Toe.Core
 		{
 			get
 			{
-				return (this.State & GameObjectFlag.AvailabilityMask) == GameObjectFlag.Available;
+				return (this.State & GameObjectFlags.AvailabilityMask) == GameObjectFlags.Available;
 			}
 
 			set
 			{
-				this.State = (this.State & ~GameObjectFlag.AvailabilityMask) | GameObjectFlag.Available;
+				this.State = (this.State & ~GameObjectFlags.AvailabilityMask) | GameObjectFlags.Available;
 			}
 		}
 
@@ -94,12 +94,12 @@ namespace Toe.Core
 		{
 			get
 			{
-				return (this.State & GameObjectFlag.AvailabilityMask) == GameObjectFlag.Garbage;
+				return (this.State & GameObjectFlags.AvailabilityMask) == GameObjectFlags.Garbage;
 			}
 
 			set
 			{
-				this.State = (this.State & ~GameObjectFlag.AvailabilityMask) | GameObjectFlag.Garbage;
+				this.State = (this.State & ~GameObjectFlags.AvailabilityMask) | GameObjectFlags.Garbage;
 			}
 		}
 
@@ -110,18 +110,18 @@ namespace Toe.Core
 		{
 			get
 			{
-				return (this.State & GameObjectFlag.Moved) == GameObjectFlag.Moved;
+				return (this.State & GameObjectFlags.Moved) == GameObjectFlags.Moved;
 			}
 
 			set
 			{
 				if (value)
 				{
-					this.State |= GameObjectFlag.Moved;
+					this.State |= GameObjectFlags.Moved;
 				}
 				else
 				{
-					this.State &= ~GameObjectFlag.Moved;
+					this.State &= ~GameObjectFlags.Moved;
 				}
 			}
 		}
@@ -133,12 +133,12 @@ namespace Toe.Core
 		{
 			get
 			{
-				return (this.State & GameObjectFlag.AvailabilityMask) == GameObjectFlag.Occupied;
+				return (this.State & GameObjectFlags.AvailabilityMask) == GameObjectFlags.Occupied;
 			}
 
 			set
 			{
-				this.State = (this.State & ~GameObjectFlag.AvailabilityMask) | GameObjectFlag.Occupied;
+				this.State = (this.State & ~GameObjectFlags.AvailabilityMask) | GameObjectFlags.Occupied;
 			}
 		}
 
@@ -258,7 +258,7 @@ namespace Toe.Core
 
 		internal void Init()
 		{
-			this.State = GameObjectFlag.Available;
+			this.State = GameObjectFlags.Available;
 			this.CollectionPrev = 0;
 			this.CollectionNext = 0;
 			this.FirstChild = 0;
@@ -307,6 +307,7 @@ namespace Toe.Core
 
 		public void AttachNodeTail(int index, int parent, ref GameObject parentObject, GameWorld world)
 		{
+			this.Parent = parent;
 			this.Prev = parentObject.LastChild;
 			this.Next = 0;
 			parentObject.LastChild = index;

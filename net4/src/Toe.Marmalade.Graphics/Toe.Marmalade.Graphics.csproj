@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{97677725-0026-486D-BC63-A30B512DCDCA}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Toe.Marmalade.Graphics</RootNamespace>
+    <AssemblyName>Toe.Marmalade.Graphics</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Autofac">
+      <HintPath>..\packages\Autofac.2.6.1.841\lib\NET40\Autofac.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CIwModel.cs" />
+    <Compile Include="CIwModelBlock.cs" />
+    <Compile Include="CIwModelBuildInfo.cs" />
+    <Compile Include="CIwModelExt.cs" />
+    <Compile Include="CIwModelExtPos.cs" />
+    <Compile Include="CIwModelExtSelSet.cs" />
+    <Compile Include="CIwModelExtSelSetEdge.cs" />
+    <Compile Include="CIwModelExtSelSetFace.cs" />
+    <Compile Include="CIwModelExtSelSetVert.cs" />
+    <Compile Include="CIwModelExtSphere.cs" />
+    <Compile Include="CIwResHandlerGEO.cs" />
+    <Compile Include="CIwResTemplateGEO.cs" />
+    <Compile Include="GraphicsModule.cs" />
+    <Compile Include="IwGraphics.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Toe.Marmalade.Util\Toe.Marmalade.Util.csproj">
+      <Project>{013C07CD-50DB-4D24-94C3-895599F8219A}</Project>
+      <Name>Toe.Marmalade.Util</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Toe.Marmalade\Toe.Marmalade.csproj">
+      <Project>{89231B56-490E-4AFE-B765-E82A7C9A4FF2}</Project>
+      <Name>Toe.Marmalade</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

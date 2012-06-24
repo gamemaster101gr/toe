@@ -1,0 +1,37 @@
+CIwMaterial
+{
+	name "material"
+
+	texture0 texture
+	texture1 texture_p
+	#vertexShader "reflectx"
+	colEmissive {1, 128, 255, 255}
+	colAmbient {2, 128, 255, 255}
+	colDiffuse {3, 128, 255, 255}
+	colSpecular { 4, 255, 255, 255}
+	specularPower 10
+	shadeMode FLAT
+	modulateMode RGB
+	cullMode NONE
+	alphaMode ADD
+	blendMode MODULATE
+	effectPreset NORMAL_MAPPING
+	alphaTest LESS 100
+	zDepthOfs 100
+	zDepthOfsHW 1
+	invisible true
+	filtering false
+	depthWriteEnable false
+	mergeGeom true
+	celW 4
+	celH 16
+	celNum 32
+	celNumU 8
+	celPeriod 1
+	formatSW PALETTE4_ABGR_1555
+	formatHW PALETTE4_RGBA_4444
+	keepAfterUpload true
+	clampUV true
+	noFog true
+	#shaderTechnique dot3
+}

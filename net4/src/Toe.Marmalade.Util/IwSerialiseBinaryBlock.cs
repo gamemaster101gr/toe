@@ -36,7 +36,14 @@ namespace Toe.Marmalade.Util
 		{
 			serialise.UInt32(ref hash);
 			position = serialise.Position;
-			serialise.UInt32(ref length);
+			if (hash != 0)
+			{
+				serialise.UInt32(ref length);
+			}
+			else
+			{
+				length = 0;
+			}
 		}
 		public void CloseBlock()
 		{
@@ -75,7 +82,7 @@ namespace Toe.Marmalade.Util
 			for (; ; )
 			{
 				this.OpenBlock(ref hash);
-				if (hash == 0xDC3C2177 && this.length == 0xCDCDCDCD) return;
+				if (hash == 0 && this.length == 0) return;
 				if (this.Block != null)
 				{
 					this.Block(this, new BinaryBlockEventArgs(hash, this.serialise, this.length - 4));

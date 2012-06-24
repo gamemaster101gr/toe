@@ -150,15 +150,30 @@ namespace Toe.Marmalade.Util
 			{
 				uint hash = 0;
 				this.UInt32(ref hash);
-				pObj = (CIwManaged)classRegistry.Get(hash).Create();
+				pObj = this.classRegistry.Get(hash).Create();
 			}
 			else
 			{
 				uint hash = pObj.Hash;
 				this.UInt32(ref hash);
 			}
-			pObj.Serialise(this);
 
+			pObj.Serialise(this);
+		}
+
+		public void ManagedObject(UInt32 hash, ref CIwManaged pObj)
+		{
+			if (this.mode == IwSerialiseMode.Read)
+			{
+				pObj = this.classRegistry.Get(hash).Create();
+			}
+			else
+			{
+				if (hash != pObj.Hash)
+					throw new ArgumentException();
+			}
+
+			pObj.Serialise(this);
 		}
 
 		public void Int32(ref int val)
@@ -488,6 +503,59 @@ namespace Toe.Marmalade.Util
 				stream.Write(buf,0,buf.Length);
 				byte zero = 0;
 				this.UInt8(ref zero);
+			}
+		}
+
+		public void Serialise(ref byte[] data)
+		{
+			for (int i = 0; i < data.Length; ++i) this.Serialise(ref data[i]);
+		}
+
+		public void Serialise(ref byte val)
+		{
+			this.UInt8(ref val);
+		}
+		public void Serialise(ref ushort val)
+		{
+			this.UInt16(ref val);
+		}
+		public void Serialise(ref uint val)
+		{
+			this.UInt32(ref val);
+		}
+		public void Serialise(ref sbyte val)
+		{
+			this.Int8(ref val);
+		}
+		public void Serialise(ref short val)
+		{
+			this.Int16(ref val);
+		}
+		public void Serialise(ref int val)
+		{
+			this.Int32(ref val);
+		}
+
+		public void ManagedHash(ref CIwManaged val)
+		{
+			uint hash = 0;
+			if (this.IsReading())
+			{
+				this.UInt32(ref hash);
+				//// TODO: find resource
+			}
+			else
+			{
+				if (val == null)
+				{
+					hash = 0;
+				}
+				else
+				{
+					hash = val.Hash;
+				}
+
+				this.UInt32(ref hash);
 			}
 		}
 	}

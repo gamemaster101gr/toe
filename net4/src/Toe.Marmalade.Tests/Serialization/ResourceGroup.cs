@@ -13,13 +13,35 @@ namespace Toe.Marmalade.Tests.Serialization
 	[TestFixture]
 	public class ResourceGroup : BaseTest
 	{
-		
-
 		[Test]
 		public void EmptyResourceGroup()
 		{
 			var rm = container.Resolve<IwResManager>();
 			CIwResGroup group = rm.LoadGroup("TestData\\empty.group.bin", false); 
+			//rm.DestroyGroup(group);
+		}
+
+		[Test]
+		public void TextureResourceGroup()
+		{
+			var rm = container.Resolve<IwResManager>();
+			CIwResGroup group = rm.LoadGroup("TestData\\texture.group.bin", false);
+			//rm.DestroyGroup(group);
+		}
+
+		[Test]
+		public void MaterialResourceGroup()
+		{
+			var rm = container.Resolve<IwResManager>();
+			CIwResGroup group = rm.LoadGroup("TestData\\material.group.bin", false);
+			//rm.DestroyGroup(group);
+		}
+
+		[Test]
+		public void BikeResourceGroup()
+		{
+			var rm = container.Resolve<IwResManager>();
+			CIwResGroup group = rm.LoadGroup("TestData\\bike.group.bin", false);
 			//rm.DestroyGroup(group);
 		}
 	}

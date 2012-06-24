@@ -1,0 +1,11 @@
+CIwResGroup
+{
+	name "material"
+	shared true
+	omitShared true
+	omitChildren true
+
+	.\texture.group
+
+	"./material.mtl"
+}

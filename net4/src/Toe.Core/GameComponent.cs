@@ -3,13 +3,14 @@ using System;
 using OpenTK;
 
 using Toe.Core.Messages;
+using Toe.Marmalade.Util;
 
 namespace Toe.Core
 {
 	/// <summary>
 	/// Game object component.
 	/// </summary>
-	public abstract class GameComponent: IDisposable
+	public abstract class GameComponent: CIwManaged, IDisposable
 	{
 		private bool isDisposed = false;
 

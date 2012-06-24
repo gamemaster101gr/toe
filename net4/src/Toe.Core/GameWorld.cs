@@ -21,7 +21,7 @@ namespace Toe.Core
 		public const uint GraphicsSlot = 3154702134; // "Graphics".ToeHash();
 
 		/// <summary>
-		/// Array of game Objects.
+		/// Serialise of game Objects.
 		/// </summary>
 		internal GameObject[] Objects;
 
@@ -201,7 +201,7 @@ namespace Toe.Core
 			//    return;
 			//}
 
-			//Array.Resize(ref this.Objects, numObjects);
+			//Serialise.Resize(ref this.Objects, numObjects);
 
 			//while (current < numObjects)
 			//{

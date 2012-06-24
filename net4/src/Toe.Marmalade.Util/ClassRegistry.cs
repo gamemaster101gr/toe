@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 using Autofac;
 
@@ -75,7 +76,7 @@ namespace Toe.Marmalade.Util
 			{
 				return v;
 			}
-
+			Debug.WriteLine(string.Format("Hash not found {0}", hash));
 			return null;
 		}
 

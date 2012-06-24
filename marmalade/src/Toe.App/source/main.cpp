@@ -49,16 +49,24 @@ int main()
 	void* writeptr = (void*)s3eFileWrite;
 	void* seekptr = (void*)s3eFileSeek;
 	void* openptr = (void*)s3eFileOpen;
-	/*IwSerialiseOpen("managedobject.bin",false);
-	CIwManaged*m = new CIwAnimBone();
-	((CIwAnimBone*)m)->SetName("bonename");
-	((CIwAnimBone*)m)->SetPos(CIwSVec3((iwsfixed)1,(iwsfixed)2,(iwsfixed)3));
-	((CIwAnimBone*)m)->SetRot(CIwSQuat((iwsfixed)4,(iwsfixed)1,(iwsfixed)2,(iwsfixed)3));
-	IwSerialiseManagedObject(m);
-	IwSerialiseClose();
-	*/
-	IwGetResManager()->DestroyGroup(IwGetResManager()->LoadGroup("testdata\\empty.group"));
 
+	//IwSerialiseOpen("managedobject_mips.bin",false);
+	//CIwTexture*t = new CIwTexture();
+	//CIwImage* img = new CIwImage();
+	//img->LoadFromFile("testdata\\mip16.png");
+	//t->SetImage(img);
+	//t->SetMipMapping(true);
+	//CIwManaged*m = t;
+	//IwSerialiseManagedObject(m);
+	//IwSerialiseClose();
+	
+	IwGetResManager()->LoadGroup("testdata\\empty.group");
+//	IwGetResManager()->LoadGroup("testdata\\texture.group");
+	CIwResGroup* g =  IwGetResManager()->LoadGroup("testdata\\material.group");
+	CIwMaterial* mat = (CIwMaterial*)g->GetResNamed("material","CIwMaterial",0);
+	//CIwTexture* t = (CIwTexture*)g->GetResNamed("texture","CIwTexture",0);
+	//CIwTexture* t2 = (CIwTexture*)g->GetResNamed("texture_p","CIwTexture",0);
+	IwGetResManager()->DestroyGroup(g);
 	
 	
 	while (1)

@@ -37,6 +37,7 @@
     <Reference Include="OpenTK, Version=1.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -45,7 +46,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AutofacActivator.cs" />
+    <Compile Include="CIwArray.cs" />
     <Compile Include="CIwEvent.cs" />
+    <Compile Include="CIwImage.cs" />
     <Compile Include="CIwManaged.cs" />
     <Compile Include="CIwManagedList.cs" />
     <Compile Include="CIwManagedRefCount.cs" />

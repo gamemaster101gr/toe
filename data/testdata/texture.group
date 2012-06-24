@@ -1,0 +1,8 @@
+CIwResGroup
+{
+	name "texture"
+	shared true
+
+	"./texture.png"
+	"./texture_p.png"
+}

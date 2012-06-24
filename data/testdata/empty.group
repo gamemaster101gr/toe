@@ -1,0 +1,7 @@
+CIwResGroup
+{
+	name "empty"
+	shared false
+	omitShared false
+	omitChildren false
+}

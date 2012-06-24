@@ -56,6 +56,14 @@
       <Project>{771410D2-5DA9-4173-A6B2-109A0A3CDC25}</Project>
       <Name>Toe.Marmalade.Anim</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Toe.Marmalade.Graphics\Toe.Marmalade.Graphics.csproj">
+      <Project>{97677725-0026-486D-BC63-A30B512DCDCA}</Project>
+      <Name>Toe.Marmalade.Graphics</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Toe.Marmalade.Gx\Toe.Marmalade.Gx.csproj">
+      <Project>{E8BDD1BF-F90E-4137-9ECC-C848BA785263}</Project>
+      <Name>Toe.Marmalade.Gx</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Toe.Marmalade.ResManager\Toe.Marmalade.ResManager.csproj">
       <Project>{324F8F53-DC53-4F0C-A2B6-07F3F88A7D46}</Project>
       <Name>Toe.Marmalade.ResManager</Name>
@@ -70,19 +78,37 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="TestData\bike.group.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="TestData\bool.bin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="TestData\empty.group.bin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="TestData\env.group.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="TestData\int32.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestData\iwgraphicsscalablepipeline.group.bin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="TestData\managedobject_bone.bin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="TestData\material.group.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestData\shaders.group.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="TestData\squat.bin" />
+    <None Include="TestData\texture.group.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

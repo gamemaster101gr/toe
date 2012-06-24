@@ -18,8 +18,8 @@ namespace Toe.Marmalade.Tests.Serialization
 			this.builder = new ContainerBuilder();
 			this.builder.RegisterModule<Toe.Marmalade.Util.UtilModule>();
 			this.builder.RegisterModule<Toe.Marmalade.ResManager.ResManagerModule>();
-			////builder.RegisterModule<Toe.Marmalade.Gx.GxModule>();
-			////builder.RegisterModule<Toe.Marmalade.Graphics.GraphicsModule>();
+			builder.RegisterModule<Toe.Marmalade.Gx.GxModule>();
+			builder.RegisterModule<Toe.Marmalade.Graphics.GraphicsModule>();
 			builder.RegisterModule<Toe.Marmalade.Anim.AnimModule>();
 			this.container = this.builder.Build();
 			foreach (var module in container.Resolve<IEnumerable<IMarmaladeModule>>())

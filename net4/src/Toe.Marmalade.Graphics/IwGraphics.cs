@@ -66,6 +66,43 @@ namespace Toe.Marmalade.Graphics
 		{
 			this.classRegistry.Add(typeof(CIwModel));
 			this.classRegistry.Add(typeof(CIwModelBlock));
+			this.classRegistry.Add(typeof(CIwModelBlockNorms));
+			this.classRegistry.Add(typeof(CIwModelBlockVerts));
+			this.classRegistry.Add(typeof(CIwModelBlockVerts2D));
+			this.classRegistry.Add(typeof(CIwModelBlockTangents));
+			this.classRegistry.Add(typeof(CIwModelBlockBiTangents));
+			this.classRegistry.Add(typeof(CIwModelBlockCols));
+			this.classRegistry.Add(typeof(CIwModelBlockCols16));
+			this.classRegistry.Add(typeof(CIwModelBlockFaceFlags));
+			this.classRegistry.Add(typeof(CIwModelBlockChunk));
+			this.classRegistry.Add(typeof(CIwModelBlockChunkTree));
+			this.classRegistry.Add(typeof(CIwModelBlockChunkVerts));
+			this.classRegistry.Add(typeof(CIwModelBlockIndGroups));
+			this.classRegistry.Add(typeof(CIwModelBlockVerts));
+			this.classRegistry.Add(typeof(CIwModelBlockGLUVs));
+			this.classRegistry.Add(typeof(CIwModelBlockGLUVs2));
+			this.classRegistry.Add(typeof(CIwModelBlockGLPrimBase));
+			this.classRegistry.Add(typeof(CIwModelBlockGLTriList));
+			this.classRegistry.Add(typeof(CIwModelBlockGLTriStrip));
+			this.classRegistry.Add(typeof(CIwModelBlockGLRenderVerts));
+			this.classRegistry.Add(typeof(CIwModelBlockGLRenderEdges));
+
+			this.classRegistry.Add(typeof(CIwModelBlockRenderVerts));
+			this.classRegistry.Add(typeof(CIwModelBlockRenderEdges));
+			this.classRegistry.Add(typeof(CIwModelBlockPrimBase));
+			this.classRegistry.Add(typeof(CIwModelBlockPrimGen3));
+			this.classRegistry.Add(typeof(CIwModelBlockPrimGen4));
+			this.classRegistry.Add(typeof(CIwModelBlockSWOptim1));
+
+			this.classRegistry.Add(typeof(CIwModelBlockPrimF3));
+			this.classRegistry.Add(typeof(CIwModelBlockPrimFT3));
+			this.classRegistry.Add(typeof(CIwModelBlockPrimG3));
+			this.classRegistry.Add(typeof(CIwModelBlockPrimGT3));
+			this.classRegistry.Add(typeof(CIwModelBlockPrimF4));
+			this.classRegistry.Add(typeof(CIwModelBlockPrimFT4));
+			this.classRegistry.Add(typeof(CIwModelBlockPrimG4));
+			this.classRegistry.Add(typeof(CIwModelBlockPrimGT4));
+
 			this.classRegistry.Add(typeof(CIwModelBuildInfo));
 			this.classRegistry.Add(typeof(CIwModelExtPos));
 			this.classRegistry.Add(typeof(CIwModelExtSphere));

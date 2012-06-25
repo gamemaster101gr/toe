@@ -69,6 +69,22 @@
       <Project>{0BF607DF-49E7-46D4-A02A-AEEE0AF004D9}</Project>
       <Name>Toe.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Toe.Marmalade.Graphics\Toe.Marmalade.Graphics.csproj">
+      <Project>{97677725-0026-486D-BC63-A30B512DCDCA}</Project>
+      <Name>Toe.Marmalade.Graphics</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Toe.Marmalade.ResManager\Toe.Marmalade.ResManager.csproj">
+      <Project>{324F8F53-DC53-4F0C-A2B6-07F3F88A7D46}</Project>
+      <Name>Toe.Marmalade.ResManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Toe.Marmalade.Util\Toe.Marmalade.Util.csproj">
+      <Project>{013C07CD-50DB-4D24-94C3-895599F8219A}</Project>
+      <Name>Toe.Marmalade.Util</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Toe.Marmalade\Toe.Marmalade.csproj">
+      <Project>{89231B56-490E-4AFE-B765-E82A7C9A4FF2}</Project>
+      <Name>Toe.Marmalade</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -7,5 +7,5 @@ CIwResGroup
 
 	.\texture.group
 
-	"./material.mtl"
+	.\material.mtl
 }

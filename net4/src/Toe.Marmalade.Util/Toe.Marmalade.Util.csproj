@@ -55,6 +55,7 @@
     <Compile Include="CIwParseable.cs" />
     <Compile Include="CIwResource.cs" />
     <Compile Include="CIwTextParserITX.cs" />
+    <Compile Include="IResourceResolver.cs" />
     <Compile Include="IwSerialise.cs" />
     <Compile Include="IwSerialiseBinaryBlock.cs" />
     <Compile Include="IwSerialiseMode.cs" />

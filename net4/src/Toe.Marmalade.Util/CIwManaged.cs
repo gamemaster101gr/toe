@@ -18,20 +18,6 @@ namespace Toe.Marmalade.Util
 			}
 		}
 
-		private uint nameHash;
-
-		public uint NameHash
-		{
-			get
-			{
-				return this.nameHash;
-			}
-			set
-			{
-				this.nameHash = value;
-			}
-		}
-
 		public virtual string GetClassName()
 		{
 			return this.GetType().Name;
@@ -67,10 +53,11 @@ namespace Toe.Marmalade.Util
 		}
 		public virtual void Serialise(IwSerialise serialise)
 		{
-			serialise.UInt32(ref nameHash);
+			serialise.UInt32(ref hash);
 		}
 		public virtual void SetName(string pName)
 		{
+			hash = pName.ToeHash();
 		}
 
 	}

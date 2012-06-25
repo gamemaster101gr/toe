@@ -30,10 +30,42 @@ namespace Toe.Marmalade.Tests.Serialization
 		}
 
 		[Test]
+		public void ModelResourceGroup()
+		{
+			var rm = container.Resolve<IwResManager>();
+			CIwResGroup group = rm.LoadGroup("TestData\\model.group.bin", false);
+			//rm.DestroyGroup(group);
+		}
+
+		[Test]
+		public void ModelSwResourceGroup()
+		{
+			var rm = container.Resolve<IwResManager>();
+			CIwResGroup group = rm.LoadGroup("TestData\\modelsw.group.bin", false);
+			//rm.DestroyGroup(group);
+		}
+
+		[Test]
+		public void Model2ResourceGroup()
+		{
+			var rm = container.Resolve<IwResManager>();
+			CIwResGroup group = rm.LoadGroup(@"Z:\MyWork\toe.git\data-ram\data-gles1\testdata\model.group.bin", false);
+			//rm.DestroyGroup(group);
+		}
+
+		[Test]
 		public void MaterialResourceGroup()
 		{
 			var rm = container.Resolve<IwResManager>();
 			CIwResGroup group = rm.LoadGroup("TestData\\material.group.bin", false);
+			//rm.DestroyGroup(group);
+		}
+
+		[Test]
+		public void Material2ResourceGroup()
+		{
+			var rm = container.Resolve<IwResManager>();
+			CIwResGroup group = rm.LoadGroup(@"Z:\MyWork\toe.git\data-ram\data-gles1\testdata\material.group.bin ", false);
 			//rm.DestroyGroup(group);
 		}
 

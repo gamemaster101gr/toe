@@ -9,10 +9,15 @@ using System.Windows.Forms;
 
 using OpenTK.Graphics.OpenGL;
 
+using Toe.Marmalade.Graphics;
+using Toe.Marmalade.ResManager;
+
 namespace Toe.Game.Windows
 {
 	public partial class GameWindow : Form
 	{
+		private readonly IwResManager resManager;
+
 		private bool isFullScreen = true;
 
 		/// <summary>
@@ -20,15 +25,28 @@ namespace Toe.Game.Windows
 		/// </summary>
 		bool isLoaded = false;
 
-		public GameWindow()
+		private CIwResGroup @group;
+
+		public GameWindow(IwResManager resManager)
 		{
+			this.resManager = resManager;
 			InitializeComponent();
 		}
 
 		protected override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
+
 			isLoaded = true;
+
+			try
+			{
+				@group = this.resManager.LoadGroup(@"Z:\MyWork\toe.git\net4\src\Toe.Marmalade.Tests\TestData\bike.group.bin", false);
+			}
+			catch(Exception ex)
+			{
+				throw;
+			}
 			this.ApplyScreenMode();
 		}
 
@@ -80,15 +98,30 @@ namespace Toe.Game.Windows
 			GL.Ortho(0, w, 0, h, -1, 1); // Верхний левый угол имеет кооординаты(0, 0)
 			GL.Viewport(0, 0, w, h); // Использовать всю поверхность GLControl под рисование
 
+			
 
 			GL.MatrixMode(MatrixMode.Modelview);
 			GL.LoadIdentity();
-			GL.Color3(Color.Yellow);
-			GL.Begin(BeginMode.Triangles);
-			GL.Vertex2(10, 20);
-			GL.Vertex2(100, 20);
-			GL.Vertex2(100, 50);
-			GL.End();
+
+			if (@group != null)
+			{
+				var models = @group.GetListNamed("CIwModel");
+				if (models != null)
+				{
+					for (int i = 0; i < models.Size; ++i)
+					{
+						((CIwModel)models[i]).Render();
+						break;
+					}
+				}
+			}
+
+			////GL.Color3(Color.Yellow);
+			////GL.Begin(BeginMode.Triangles);
+			////GL.Vertex2(10, 20);
+			////GL.Vertex2(100, 20);
+			////GL.Vertex2(100, 50);
+			////GL.End();
 
 			glControl.SwapBuffers();
 		}

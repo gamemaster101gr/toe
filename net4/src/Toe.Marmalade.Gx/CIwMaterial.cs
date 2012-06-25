@@ -1,4 +1,6 @@
-﻿using Toe.Marmalade.Util;
+﻿using System.Drawing;
+
+using Toe.Marmalade.Util;
 
 namespace Toe.Marmalade.Gx
 {
@@ -8,6 +10,34 @@ namespace Toe.Marmalade.Gx
 	public class CIwMaterial : CIwResource
 	{
 		private uint flags = 0;
+
+		private CIwTexture texture0;
+
+		private CIwManaged texture1;
+
+		private short zDepthOfsHW;
+
+		private Color colEmissive;
+
+		private Color colAmbient = Color.FromArgb(255,255,255,255);
+
+		private Color colDiffuse = Color.FromArgb(255, 255, 255, 255);
+
+		private Color colSpecular = Color.FromArgb(0, 255, 255, 255);
+
+		private short zDepthOfs;
+
+		private byte celNum;
+
+		private byte celNumU;
+
+		private byte celW;
+
+		private byte celH;
+
+		private byte celPeriod;
+
+		private byte alphaTestValue;
 
 		public const uint SHADE_FLAT = 0;
 		public const uint SHADE_GOURAUD = 1;
@@ -84,142 +114,98 @@ namespace Toe.Marmalade.Gx
 		public const uint DEPTH_WRITE_MODE_SHIFT = 29;
 		public const uint DEPTH_WRITE_MODE_MASK = 0x1 << 29;
 
+		public byte SpecularPower
+		{
+			get
+			{
+				return colSpecular.A;
+			}
+			set
+			{
+				colSpecular = Color.FromArgb(value, colSpecular.R, colSpecular.G, colSpecular.B);
+			}
+		}
+
 		public override void Serialise(IwSerialise serialise)
 		{
 			base.Serialise(serialise);
 
-			{
-				bool val = false;
-				serialise.Bool(ref val);
-			}
+			bool someFlag = false;
+			serialise.Bool(ref someFlag);
+
 			{
 				serialise.UInt32(ref flags);
 			}
 
-////            0x00010000 
-////        m_ZDepthOfs	0x0000	short
+			if (!someFlag)
+			{
+				{
+					serialise.Int16(ref zDepthOfs);
+				}
+				{
+					serialise.Int16(ref zDepthOfsHW);
+				}
+				{
+					serialise.Colour(ref this.colEmissive);
+				}
+				{
+					serialise.Colour(ref this.colAmbient);
+				}
+				{
+					serialise.Colour(ref this.colDiffuse);
+				}
+				{
+					serialise.Colour(ref this.colSpecular);
+				}
+				{
+					uint val = 4;
+					serialise.UInt32(ref val);
+				}
+			}
 
-////    Toe.App!IwSerialiseInt16()  + 0x10c bytes	
-////    Toe.App!CIwMaterial::Serialise()  + 0x2ac bytes	
+			// Texture is always presented
+			{	
+				CIwManaged t = this.texture0;
+				serialise.ManagedHash("CIwTexture".ToeHash(), ref t);
+				this.texture0 = (CIwTexture)t;
+			}
 
-////0x80010001
-////        m_ZDepthOfsHW	0x0001	short
+			if (!someFlag)
+			{
+				CIwManaged t = this.texture1;
+				serialise.ManagedHash("CIwTexture".ToeHash(), ref t);
+				this.texture1 = (CIwTexture)t;
+				{
+					CIwManaged val = null;
+					serialise.ManagedHash("?".ToeHash(), ref val);
+				}
+				{
+					CIwManaged val = null;
+					serialise.ManagedHash("?".ToeHash(), ref val);
+				}
+				byte isAnimated = 0;
+				serialise.UInt8(ref isAnimated);
+				if (isAnimated != 0)
+				{
+					{
+						byte value = 0;
+						serialise.UInt8(ref value);
+					}
 
-////    Toe.App!IwSerialiseInt16()  + 0x10c bytes	
-////    Toe.App!CIwMaterial::Serialise()  + 0x2ca bytes	
+					serialise.UInt8(ref celNum);
+					serialise.UInt8(ref celNumU);
+					serialise.UInt8(ref celW);
+					serialise.UInt8(ref celH);
+					serialise.UInt8(ref celPeriod);
+				}
 
-////+		m_ColEmissive	{r='' g='Ђ' b='я' ...}	CIwColour
+				serialise.UInt8(ref alphaTestValue);
 
-////1
-////    Toe.App!IwSerialiseUInt8()  + 0x109 bytes	
-////    Toe.App!CIwMaterial::Serialise()  + 0x2dc bytes	
-
-////0x80
-////    Toe.App!IwSerialiseUInt8()  + 0x109 bytes	
-////    Toe.App!CIwMaterial::Serialise()  + 0x2eb bytes	
-////ff
-////    Toe.App!IwSerialiseUInt8()  + 0x109 bytes	
-////    Toe.App!CIwMaterial::Serialise()  + 0x2fa bytes	
-////ff
-////    Toe.App!IwSerialiseUInt8()  + 0x109 bytes	
-////    Toe.App!CIwMaterial::Serialise()  + 0x2fa bytes	
-
-////2
-////    Toe.App!IwSerialiseUInt8()  + 0x109 bytes	
-////    Toe.App!CIwMaterial::Serialise()  + 0x2dc bytes	
-
-////0x80
-////    Toe.App!IwSerialiseUInt8()  + 0x109 bytes	
-////    Toe.App!CIwMaterial::Serialise()  + 0x2eb bytes	
-////ff
-////    Toe.App!IwSerialiseUInt8()  + 0x109 bytes	
-////    Toe.App!CIwMaterial::Serialise()  + 0x2fa bytes	
-////ff
-////    Toe.App!IwSerialiseUInt8()  + 0x109 bytes	
-////    Toe.App!CIwMaterial::Serialise()  + 0x2fa bytes	
-
-////3 CULL_NONE
-////    Toe.App!IwSerialiseUInt8()  + 0x109 bytes	
-////    Toe.App!CIwMaterial::Serialise()  + 0x2dc bytes	
-
-////0x80
-////    Toe.App!IwSerialiseUInt8()  + 0x109 bytes	
-////    Toe.App!CIwMaterial::Serialise()  + 0x2eb bytes	
-////ff
-////    Toe.App!IwSerialiseUInt8()  + 0x109 bytes	
-////    Toe.App!CIwMaterial::Serialise()  + 0x2fa bytes	
-////ff
-////    Toe.App!IwSerialiseUInt8()  + 0x109 bytes	
-////    Toe.App!CIwMaterial::Serialise()  + 0x2fa bytes	
-
-
-////4
-////    Toe.App!IwSerialiseUInt8()  + 0x109 bytes	
-////    Toe.App!CIwMaterial::Serialise()  + 0x2dc bytes	
-
-////0xff
-////    Toe.App!IwSerialiseUInt8()  + 0x109 bytes	
-////    Toe.App!CIwMaterial::Serialise()  + 0x2eb bytes	
-////ff
-////    Toe.App!IwSerialiseUInt8()  + 0x109 bytes	
-////    Toe.App!CIwMaterial::Serialise()  + 0x2fa bytes	
-////ff
-////    Toe.App!IwSerialiseUInt8()  + 0x109 bytes	
-////    Toe.App!CIwMaterial::Serialise()  + 0x2fa bytes	
-
-
-////0x0a
-////    Toe.App!IwSerialiseUInt8()  + 0x109 bytes	
-////    Toe.App!CIwMaterial::Serialise()  + 0x2dc bytes	
-
-////4
-////    Toe.App!IwSerialiseUInt32()  + 0x110 bytes	
-////    Toe.App!CIwMaterial::Serialise()  + 0x3fe bytes	
-
-////0xd9794596
-////    Toe.App!IwSerialiseUInt32()  + 0x110 bytes	
-////    Toe.App!IwSerialiseManagedHash()  + 0x10d bytes	
-////0x1ce10fc5
-////    Toe.App!IwSerialiseUInt32()  + 0x110 bytes	
-////    Toe.App!IwSerialiseManagedHash()  + 0x10d bytes	
-////0x00000000
-////    Toe.App!IwSerialiseUInt32()  + 0x110 bytes	
-////    Toe.App!IwSerialiseManagedHash()  + 0x10d bytes	
-////0x00000000
-////    Toe.App!IwSerialiseUInt32()  + 0x110 bytes	
-////    Toe.App!IwSerialiseManagedHash()  + 0x10d bytes	
-////1
-////    Toe.App!IwSerialiseUInt8()  + 0x109 bytes	
-////    Toe.App!CIwMaterial::Serialise()  + 0x546 bytes	
-////0
-////    Toe.App!IwSerialiseUInt8()  + 0x109 bytes	
-////    Toe.App!CIwMatAnim::Serialise()  + 0x23 bytes	
-////20
-////    Toe.App!IwSerialiseUInt8()  + 0x109 bytes	
-////    Toe.App!CIwMatAnim::Serialise()  + 0x32 bytes	
-////8
-////    Toe.App!IwSerialiseUInt8()  + 0x109 bytes	
-////    Toe.App!CIwMatAnim::Serialise()  + 0x41 bytes	
-////4
-////    Toe.App!IwSerialiseUInt8()  + 0x109 bytes	
-////    Toe.App!CIwMatAnim::Serialise()  + 0x50 bytes	
-////10
-////    Toe.App!IwSerialiseUInt8()  + 0x109 bytes	
-////    Toe.App!CIwMatAnim::Serialise()  + 0x62 bytes	
-////1
-////    Toe.App!IwSerialiseUInt8()  + 0x109 bytes	
-////    Toe.App!CIwMatAnim::Serialise()  + 0x71 bytes	
-////64
-////    Toe.App!IwSerialiseUInt8()  + 0x109 bytes	
-////    Toe.App!CIwMaterial::Serialise()  + 0x570 bytes	
-////0
-////    Toe.App!IwSerialiseUInt32()  + 0x110 bytes	
-////    Toe.App!IwSerialiseManagedHash()  + 0x10d bytes	
-
-			//{
-			//    CIwManaged val = null;
-			//    serialise.ManagedHash(ref val);
-			//}
+				{
+					CIwManaged val = null;
+					serialise.ManagedHash("?".ToeHash(), ref val);
+				}
+			}
 		}
 	}
 }

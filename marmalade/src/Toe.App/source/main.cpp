@@ -1,11 +1,14 @@
 #include "s3e.h"
 #include "IwGx.h"
+#include "IwGraphics.h"
 #include "IwUtil.h"
 #include "IwAnim.h"
+#include "IwModelBlockGL.h"
 
 // Attempt to lock to 25 frames per second
 #define MS_PER_FRAME (1000 / 25)
 
+typedef void (CIwModelBlockGLPrimBase::* SerialisePtr)();
 
 //-----------------------------------------------------------------------------
 // Main global function
@@ -16,6 +19,7 @@ int main()
 	//Normally, using IwGxInit() is sufficient.
 	//To only include some configurations, see the documentation for IwGxInit_Base(), IwGxInit_GLRender() etc.
 	IwGxInit();
+	IwGraphicsInit();
 	//Initialises all core functionality for IwResManager.
 	IwResManagerInit();
 	IwAnimInit();
@@ -49,10 +53,11 @@ int main()
 	void* writeptr = (void*)s3eFileWrite;
 	void* seekptr = (void*)s3eFileSeek;
 	void* openptr = (void*)s3eFileOpen;
+	SerialisePtr sptr = &CIwModelBlockGLPrimBase::Serialise;
 
 	//IwSerialiseOpen("managedobject_mips.bin",false);
 	//CIwTexture*t = new CIwTexture();
-	//CIwImage* img = new CIwImage();
+	//CIwImage* img = new CIwImage();|
 	//img->LoadFromFile("testdata\\mip16.png");
 	//t->SetImage(img);
 	//t->SetMipMapping(true);
@@ -60,10 +65,11 @@ int main()
 	//IwSerialiseManagedObject(m);
 	//IwSerialiseClose();
 	
-	IwGetResManager()->LoadGroup("testdata\\empty.group");
+	//IwGetResManager()->LoadGroup("testdata\\empty.group");
 //	IwGetResManager()->LoadGroup("testdata\\texture.group");
-	CIwResGroup* g =  IwGetResManager()->LoadGroup("testdata\\material.group");
-	CIwMaterial* mat = (CIwMaterial*)g->GetResNamed("material","CIwMaterial",0);
+	CIwResGroup* g =  IwGetResManager()->LoadGroup("testdata\\model.group");
+	CIwModel* geo = (CIwModel*)g->GetResNamed("model","CIwModel",0);
+	//CIwMaterial* mat = (CIwMaterial*)g->GetResNamed("material","CIwMaterial",0);
 	//CIwTexture* t = (CIwTexture*)g->GetResNamed("texture","CIwTexture",0);
 	//CIwTexture* t2 = (CIwTexture*)g->GetResNamed("texture_p","CIwTexture",0);
 	IwGetResManager()->DestroyGroup(g);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 using Toe.Marmalade.Util;
@@ -8,7 +9,7 @@ namespace Toe.Marmalade.ResManager
 	/// <summary>
 	/// The iw res manager.
 	/// </summary>
-	public class IwResManager : IMarmaladeModule
+	public class IwResManager : IResourceResolver, IMarmaladeModule
 	{
 		#region Constants and Fields
 
@@ -21,6 +22,8 @@ namespace Toe.Marmalade.ResManager
 		/// True if objest is already disposed.
 		/// </summary>
 		private bool isDisposed;
+
+		List<CIwResGroup> groups = new List<CIwResGroup>();
 
 		#endregion
 
@@ -44,6 +47,19 @@ namespace Toe.Marmalade.ResManager
 		~IwResManager()
 		{
 			this.Dispose(false);
+		}
+
+		public CIwManaged Resolve(uint type, uint hash)
+		{
+			foreach (var resGroup in groups)
+			{
+				CIwResource res;
+				if (resGroup.TryResolve(type, hash, out res))
+				{
+					return res;
+				}
+			}
+			return null;
 		}
 
 		#endregion
@@ -96,10 +112,12 @@ namespace Toe.Marmalade.ResManager
 			if (allowNonExist && !File.Exists(groupPath)) return null;
 
 			var gr = new CIwResGroup();
-			using (var s = IwSerialise.Open(groupPath, true, classRegistry))
+
+			using (var s = IwSerialise.Open(groupPath, true, this.classRegistry, this))
 			{
 				 gr.Read(s);
 			}
+
 			return gr;
 		}
 

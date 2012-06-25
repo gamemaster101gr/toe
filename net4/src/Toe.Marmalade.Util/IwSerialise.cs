@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Text;
 
@@ -20,6 +21,8 @@ namespace Toe.Marmalade.Util
 
 		private readonly ClassRegistry classRegistry;
 
+		private readonly IResourceResolver resourceResolver;
+
 		private readonly Stream stream;
 
 		private bool isDisposed;
@@ -37,11 +40,12 @@ namespace Toe.Marmalade.Util
 		/// <param name="mode">
 		/// The mode.
 		/// </param>
-		public IwSerialise(Stream stream, IwSerialiseMode mode, ClassRegistry classRegistry)
+		public IwSerialise(Stream stream, IwSerialiseMode mode, ClassRegistry classRegistry, IResourceResolver resourceResolver)
 		{
 			this.stream = stream;
 			this.mode = mode;
 			this.classRegistry = classRegistry;
+			this.resourceResolver = resourceResolver;
 		}
 
 		/// <summary>
@@ -82,9 +86,9 @@ namespace Toe.Marmalade.Util
 		/// </param>
 		/// <returns>
 		/// </returns>
-		public static IwSerialise Open(string filePath, bool read, ClassRegistry classRegistry, bool ram = false)
+		public static IwSerialise Open(string filePath, bool read, ClassRegistry classRegistry, IResourceResolver resourceResolver, bool ram = false)
 		{
-			return Open(filePath, read ? IwSerialiseMode.Read : IwSerialiseMode.Write, classRegistry, ram);
+			return Open(filePath, read ? IwSerialiseMode.Read : IwSerialiseMode.Write, classRegistry, resourceResolver, ram);
 		}
 
 		/// <summary>
@@ -103,14 +107,14 @@ namespace Toe.Marmalade.Util
 		/// </returns>
 		/// <exception cref="ArgumentOutOfRangeException">
 		/// </exception>
-		public static IwSerialise Open(string filePath, IwSerialiseMode mode, ClassRegistry classRegistry, bool ram = false)
+		public static IwSerialise Open(string filePath, IwSerialiseMode mode, ClassRegistry classRegistry, IResourceResolver resourceResolver, bool ram = false)
 		{
 			switch (mode)
 			{
 				case IwSerialiseMode.Read:
-					return new IwSerialise(File.OpenRead(FindFilePath(filePath, ram)), mode, classRegistry);
+					return new IwSerialise(File.OpenRead(FindFilePath(filePath, ram)), mode, classRegistry, resourceResolver);
 				case IwSerialiseMode.Write:
-					return new IwSerialise(File.OpenWrite(FindFilePath(filePath, ram)), mode, classRegistry);
+					return new IwSerialise(File.OpenWrite(FindFilePath(filePath, ram)), mode, classRegistry, resourceResolver);
 				default:
 					throw new ArgumentOutOfRangeException("mode");
 			}
@@ -165,7 +169,8 @@ namespace Toe.Marmalade.Util
 		{
 			if (this.mode == IwSerialiseMode.Read)
 			{
-				pObj = this.classRegistry.Get(hash).Create();
+				IwClassFactory factory = this.classRegistry.Get(hash);
+				pObj = factory.Create();
 			}
 			else
 			{
@@ -458,26 +463,50 @@ namespace Toe.Marmalade.Util
 
 		public void Quat(ref Quaternion rot)
 		{
-			int f = 0;
-			this.Int32(ref f);
-			rot.W = (float)f / S3E.IwGeomOne;
-			this.Int32(ref f);
-			rot.X = (float)f / S3E.IwGeomOne;
-			this.Int32(ref f);
-			rot.Y = (float)f / S3E.IwGeomOne;
-			this.Int32(ref f);
-			rot.Z = (float)f / S3E.IwGeomOne;
+			int w = 0;
+			int x = 0;
+			int y = 0;
+			int z = 0;
+			if (this.IsWriting())
+			{
+				w = (int)(rot.W * S3E.IwGeomOne);
+				x = (int)(rot.X * S3E.IwGeomOne);
+				y = (int)(rot.Y * S3E.IwGeomOne);
+				z = (int)(rot.Z * S3E.IwGeomOne);
+			}
+			Int32(ref w);
+			Int32(ref x);
+			Int32(ref y);
+			Int32(ref z);
+			if (this.IsReading())
+			{
+				rot.W = (float)w / S3E.IwGeomOne;
+				rot.X = (float)x / S3E.IwGeomOne;
+				rot.Y = (float)y / S3E.IwGeomOne;
+				rot.Z = (float)z / S3E.IwGeomOne;
+			}
 		}
 
 		public void SVec3(ref Vector3 pos)
 		{
-			short x = (short)(pos.X*S3E.IwGeomOne);
-			short y =(short)( pos.Y*S3E.IwGeomOne);
-			short z = (short)(pos.Z*S3E.IwGeomOne);
+			short x=0;
+			short y = 0;
+			short z = 0;
+			if (this.IsWriting())
+			{
+				x = (short)(pos.X * S3E.IwGeomOne);
+				y = (short)(pos.Y * S3E.IwGeomOne);
+				z = (short)(pos.Z * S3E.IwGeomOne);
+			}
 			Int16(ref x);
 			Int16(ref y);
 			Int16(ref z);
-			pos.X = (float)x / S3E.IwGeomOne;
+			if (this.IsReading())
+			{
+				pos.X = (float)x / S3E.IwGeomOne;
+				pos.Y = (float)y / S3E.IwGeomOne;
+				pos.Z = (float)z / S3E.IwGeomOne;
+			}
 		}
 
 		public void String(ref string s)
@@ -506,6 +535,10 @@ namespace Toe.Marmalade.Util
 			}
 		}
 
+		public void Serialise(ref ushort[] data)
+		{
+			for (int i = 0; i < data.Length; ++i) this.Serialise(ref data[i]);
+		}
 		public void Serialise(ref byte[] data)
 		{
 			for (int i = 0; i < data.Length; ++i) this.Serialise(ref data[i]);
@@ -536,12 +569,14 @@ namespace Toe.Marmalade.Util
 			this.Int32(ref val);
 		}
 
-		public void ManagedHash(ref CIwManaged val)
+		public void ManagedHash(UInt32 type, ref CIwManaged val)
 		{
 			uint hash = 0;
 			if (this.IsReading())
 			{
 				this.UInt32(ref hash);
+				if (resourceResolver != null)
+					val = resourceResolver.Resolve(type, hash);
 				//// TODO: find resource
 			}
 			else
@@ -558,5 +593,85 @@ namespace Toe.Marmalade.Util
 				this.UInt32(ref hash);
 			}
 		}
+
+		public void Colour(ref Color color)
+		{
+			if (this.IsReading())
+			{
+				byte a=0,r=0,g=0,b=0;
+				this.UInt8(ref r);
+				this.UInt8(ref g);
+				this.UInt8(ref b);
+				this.UInt8(ref a);
+				color = Color.FromArgb(a, r, g, b);
+			}
+			else
+			{
+				byte a = color.A, r = color.R, g = color.G, b = color.B;
+				this.UInt8(ref r);
+				this.UInt8(ref g);
+				this.UInt8(ref b);
+				this.UInt8(ref a);
+			}
+		}
+
+		public void Vec3Fixed(ref Vector3 pos)
+		{
+			int x = 0;
+			int y = 0;
+			int z = 0;
+			if (this.IsWriting())
+			{
+				x = (int)(pos.X * S3E.IwGeomOne);
+				y = (int)(pos.Y * S3E.IwGeomOne);
+				z = (int)(pos.Z * S3E.IwGeomOne);
+			}
+			Int32(ref x);
+			Int32(ref y);
+			Int32(ref z);
+			if (this.IsReading())
+			{
+				pos.X = (float)x / S3E.IwGeomOne;
+				pos.Y = (float)y / S3E.IwGeomOne;
+				pos.Z = (float)z / S3E.IwGeomOne;
+			}
+		}
+		public void Vec3(ref Vector3 pos)
+		{
+			int x = 0;
+			int y = 0;
+			int z = 0;
+			if (this.IsWriting())
+			{
+				x = (int)(pos.X);
+				y = (int)(pos.Y);
+				z = (int)(pos.Z);
+			}
+			Int32(ref x);
+			Int32(ref y);
+			Int32(ref z);
+			if (this.IsReading())
+			{
+				pos.X = (float)x;
+				pos.Y = (float)y;
+				pos.Z = (float)z;
+			}
+		}
+
+		public void Fixed(ref float radius)
+		{
+			if (this.IsReading())
+			{
+				int r = 0;
+				this.Int32(ref r);
+				radius = (float)r / S3E.IwGeomOne;
+			}
+			else
+			{
+				int r = (int)radius*S3E.IwGeomOne;
+				this.Int32(ref r);
+			}
+		}
+
 	}
 }

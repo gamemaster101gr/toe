@@ -34,8 +34,10 @@
     <Reference Include="Autofac">
       <HintPath>..\packages\Autofac.2.6.1.841\lib\NET40\Autofac.dll</HintPath>
     </Reference>
+    <Reference Include="OpenTK, Version=1.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -45,6 +47,39 @@
   <ItemGroup>
     <Compile Include="CIwModel.cs" />
     <Compile Include="CIwModelBlock.cs" />
+    <Compile Include="CIwModelBlockBiTangents.cs" />
+    <Compile Include="CIwModelBlockChunk.cs" />
+    <Compile Include="CIwModelBlockChunkTree.cs" />
+    <Compile Include="CIwModelBlockChunkVerts.cs" />
+    <Compile Include="CIwModelBlockCols.cs" />
+    <Compile Include="CIwModelBlockCols16.cs" />
+    <Compile Include="CIwModelBlockFaceFlags.cs" />
+    <Compile Include="CIwModelBlockGLPrimBase.cs" />
+    <Compile Include="CIwModelBlockGLRenderEdges.cs" />
+    <Compile Include="CIwModelBlockGLRenderVerts.cs" />
+    <Compile Include="CIwModelBlockGLTriList.cs" />
+    <Compile Include="CIwModelBlockGLTriStrip.cs" />
+    <Compile Include="CIwModelBlockGLUVs.cs" />
+    <Compile Include="CIwModelBlockGLUVs2.cs" />
+    <Compile Include="CIwModelBlockIndGroups.cs" />
+    <Compile Include="CIwModelBlockNorms.cs" />
+    <Compile Include="CIwModelBlockPrimBase.cs" />
+    <Compile Include="CIwModelBlockPrimF3.cs" />
+    <Compile Include="CIwModelBlockPrimF4.cs" />
+    <Compile Include="CIwModelBlockPrimFT3.cs" />
+    <Compile Include="CIwModelBlockPrimFT4.cs" />
+    <Compile Include="CIwModelBlockPrimG3.cs" />
+    <Compile Include="CIwModelBlockPrimG4.cs" />
+    <Compile Include="CIwModelBlockPrimGen3.cs" />
+    <Compile Include="CIwModelBlockPrimGen4.cs" />
+    <Compile Include="CIwModelBlockPrimGT3.cs" />
+    <Compile Include="CIwModelBlockPrimGT4.cs" />
+    <Compile Include="CIwModelBlockRenderEdges.cs" />
+    <Compile Include="CIwModelBlockRenderVerts.cs" />
+    <Compile Include="CIwModelBlockSWOptim1.cs" />
+    <Compile Include="CIwModelBlockTangents.cs" />
+    <Compile Include="CIwModelBlockVerts.cs" />
+    <Compile Include="CIwModelBlockVerts2D.cs" />
     <Compile Include="CIwModelBuildInfo.cs" />
     <Compile Include="CIwModelExt.cs" />
     <Compile Include="CIwModelExtPos.cs" />
@@ -60,6 +95,14 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Toe.Marmalade.Geom\Toe.Marmalade.Geom.csproj">
+      <Project>{3D99374A-A141-4C78-9111-1FD0705E361E}</Project>
+      <Name>Toe.Marmalade.Geom</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Toe.Marmalade.Gx\Toe.Marmalade.Gx.csproj">
+      <Project>{E8BDD1BF-F90E-4137-9ECC-C848BA785263}</Project>
+      <Name>Toe.Marmalade.Gx</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Toe.Marmalade.Util\Toe.Marmalade.Util.csproj">
       <Project>{013C07CD-50DB-4D24-94C3-895599F8219A}</Project>
       <Name>Toe.Marmalade.Util</Name>

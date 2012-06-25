@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 using Toe.Marmalade.Util;
@@ -41,7 +42,9 @@ namespace Toe.Marmalade.ResManager
 		/// <summary>
 		/// this group has already been resolved.
 		/// </summary>
-		public const uint RESOLVED_F = (1 << 6);    
+		public const uint RESOLVED_F = (1 << 6);
+
+		private CIwArray<CIwResList> lists = new CIwArray<CIwResList>();
      
 		public override bool ParseAttribute(CIwTextParserITX pParser, string pAttrName)
 		{
@@ -83,45 +86,19 @@ namespace Toe.Marmalade.ResManager
 			}
 		}
 
-		private void ReadGroupResources(IwSerialise iwSerialise)
+		private void ReadGroupResources(IwSerialise serialise)
 		{
 			uint numResources = 0;
-			iwSerialise.UInt32(ref numResources);
+			serialise.UInt32(ref numResources);
 			while (numResources>0)
 			{
-				uint resHash = 0;
-				iwSerialise.UInt32(ref resHash);
-				uint resCount = 0;
-				iwSerialise.UInt32(ref resCount);
-
-				bool unknown0 = false;
-				iwSerialise.Bool(ref unknown0);
-				bool unknown1 = false;
-				iwSerialise.Bool(ref unknown1);
-
-				while (resCount > 0)
-				{
-					var pos = iwSerialise.Position;
-					UInt32 unknown2 = 0;
-					iwSerialise.UInt32(ref unknown2);
-
-					CIwManaged res = null;
-					iwSerialise.ManagedObject(resHash, ref res);
-					Add((CIwResource)res);
-					--resCount;
-
-					if (iwSerialise.Position != pos+unknown2)
-					{
-						iwSerialise.Position = pos + unknown2;
-					}
-				}
+				//uint resHash = 0;
+				//serialise.UInt32(ref resHash);
+				var item = new CIwResList();
+				item.Serialise(serialise);
+				lists.PushBack(item);
 				--numResources;
 			}
-		}
-
-		private void Add(CIwResource res)
-		{
-			Debug.WriteLine(string.Format("Adding resource {0}", res.GetType().Name));
 		}
 
 		private void ReadResGroupMembers(IwSerialise iwSerialise)
@@ -142,6 +119,46 @@ namespace Toe.Marmalade.ResManager
 		private void WriteBlock(object sender, BinaryBlockEventArgs e)
 		{
 			throw new NotImplementedException();
+		}
+
+		public bool TryResolve(uint type, uint hash, out CIwResource res)
+		{
+			res = null;
+			return false;
+		}
+
+		public CIwResList GetListNamed(string name)
+		{
+			return this.GetListHashed(name.ToeHash());
+		}
+
+		private CIwResList GetListHashed(uint toeHash)
+		{
+			for (int i = 0; i < lists.Size;++i)
+			{
+				if (this.lists[i].Hash == toeHash) return this.lists[i];
+			}
+			return null;
+		}
+
+		private CIwResource GetResNamed(string name, string type)
+		{
+			return this.GetResHashed(name.ToeHash(), type);
+		}
+
+		private CIwResource GetResHashed(uint name, string type)
+		{
+			return this.GetResHashed(name, type.ToeHash());
+		}
+
+		private CIwResource GetResHashed(uint name, uint type)
+		{
+			var l = this.GetListHashed(type);
+			if (l != null)
+			{
+				return l.GetResHashed(name);
+			}
+			return null;
 		}
 	}
 }

@@ -5,13 +5,13 @@ CIwMaterial
 	texture0 texture
 	texture1 texture_p
 	#vertexShader "reflectx"
-	#colEmissive {1, 128, 255, 255}
-	#colAmbient {2, 128, 255, 255}
-	#colDiffuse {3, 128, 255, 255}
-	#colSpecular { 4, 255, 255, 255}
+	colEmissive {1, 128, 255, 255}
+	colAmbient {2, 128, 255, 255}
+	colDiffuse {3, 128, 255, 255}
+	colSpecular { 4, 255, 255, 255}
 	#specularPower 10
-	#shadeMode FLAT
-	#modulateMode RGB
+	shadeMode FLAT
+	modulateMode RGB
 	#cullMode NONE
 	#alphaMode ADD
 	#blendMode MODULATE

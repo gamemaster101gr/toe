@@ -1,4 +1,7 @@
+using System;
 using System.Text;
+
+using OpenTK.Graphics.OpenGL;
 
 namespace Toe.Marmalade
 {
@@ -52,6 +55,15 @@ namespace Toe.Marmalade
 			}
 
 			return hash;
+		}
+
+		public static void CheckOpenGLStatus()
+		{
+			var code = GL.GetError();
+			if (code != ErrorCode.NoError)
+			{
+				throw new Exception(string.Format("OpenGL Error: {0}", code));
+			}
 		}
 	}
 }

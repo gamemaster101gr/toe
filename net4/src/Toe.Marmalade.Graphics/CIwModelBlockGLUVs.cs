@@ -35,5 +35,17 @@ namespace Toe.Marmalade.Graphics
 		}
 
 		Vector2[] verts;
+
+		public Vector2[] UVs
+		{
+			get
+			{
+				return verts;
+			}
+			set
+			{
+				throw new NotImplementedException();
+			}
+		}
 	}
 }

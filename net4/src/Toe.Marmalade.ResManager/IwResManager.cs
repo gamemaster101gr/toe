@@ -53,13 +53,43 @@ namespace Toe.Marmalade.ResManager
 		{
 			foreach (var resGroup in groups)
 			{
-				CIwResource res;
-				if (resGroup.TryResolve(type, hash, out res))
+				CIwResource res = resGroup.GetResHashed(hash, type);
+				if (res != null)
 				{
 					return res;
 				}
 			}
 			return null;
+		}
+
+		public string ResolveFilePath(string filePath, bool ram)
+		{
+			if (File.Exists(filePath)) return Path.GetFullPath(filePath);
+			return filePath;
+		}
+
+		public string ResolveSourceOrBinaryFilePath(string filePath)
+		{
+			string binFilePath;
+			if (filePath.EndsWith(".bin", StringComparison.InvariantCultureIgnoreCase))
+			{
+				binFilePath = filePath;
+				filePath = filePath.Substring(0, filePath.Length - 4);
+			}
+			else
+			{
+				binFilePath = filePath + ".bin";
+			}
+			bool binExists = File.Exists(binFilePath);
+			bool originalExists = File.Exists(filePath);
+			if (!binExists && !originalExists)
+				throw new FileNotFoundException("File not found",filePath);
+			if (binExists && !originalExists) return Path.GetFullPath(binFilePath);
+			if (originalExists && !binExists) return Path.GetFullPath(filePath);
+			var timeBin = File.GetLastWriteTime(binFilePath);
+			var timeOriginal = File.GetLastWriteTime(filePath);
+			if (timeBin < timeOriginal) return Path.GetFullPath(filePath);
+			return Path.GetFullPath(binFilePath);
 		}
 
 		#endregion
@@ -73,7 +103,8 @@ namespace Toe.Marmalade.ResManager
 		/// </param>
 		public void DestroyGroup(CIwResGroup group)
 		{
-			throw new NotImplementedException();
+			groups.Remove(group);
+			group.Dispose();
 		}
 
 		/// <summary>
@@ -111,11 +142,32 @@ namespace Toe.Marmalade.ResManager
 		{
 			if (allowNonExist && !File.Exists(groupPath)) return null;
 
-			var gr = new CIwResGroup();
+			var gr = new CIwResGroup(this);
 
-			using (var s = IwSerialise.Open(groupPath, true, this.classRegistry, this))
+			string originalDir = Directory.GetCurrentDirectory();
+
+			try
 			{
-				 gr.Read(s);
+				var file = this.ResolveSourceOrBinaryFilePath(groupPath);
+				groups.Add(gr);
+				//Directory.SetCurrentDirectory(Path.GetDirectoryName(file));
+
+				if (file.EndsWith(".bin",StringComparison.InvariantCultureIgnoreCase))
+				{
+					using (var s = IwSerialise.Open(file, true, this.classRegistry, this))
+					{
+						gr.Read(s);
+					}
+				}
+				else
+				{
+					throw new NotImplementedException();
+				}
+
+			} 
+			finally
+			{
+				Directory.SetCurrentDirectory(originalDir);
 			}
 
 			return gr;

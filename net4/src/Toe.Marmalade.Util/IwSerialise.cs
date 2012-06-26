@@ -112,9 +112,9 @@ namespace Toe.Marmalade.Util
 			switch (mode)
 			{
 				case IwSerialiseMode.Read:
-					return new IwSerialise(File.OpenRead(FindFilePath(filePath, ram)), mode, classRegistry, resourceResolver);
+					return new IwSerialise(File.OpenRead(resourceResolver.ResolveFilePath(filePath, ram)), mode, classRegistry, resourceResolver);
 				case IwSerialiseMode.Write:
-					return new IwSerialise(File.OpenWrite(FindFilePath(filePath, ram)), mode, classRegistry, resourceResolver);
+					return new IwSerialise(File.OpenWrite(resourceResolver.ResolveFilePath(filePath, ram)), mode, classRegistry, resourceResolver);
 				default:
 					throw new ArgumentOutOfRangeException("mode");
 			}
@@ -407,11 +407,6 @@ namespace Toe.Marmalade.Util
 			while (bytesRead < numBytes);
 		}
 
-		private static string FindFilePath(string filePath, bool ram)
-		{
-			return filePath;
-		}
-
 		private void EndOfFile()
 		{
 			throw new System.IO.EndOfStreamException();
@@ -577,7 +572,6 @@ namespace Toe.Marmalade.Util
 				this.UInt32(ref hash);
 				if (resourceResolver != null)
 					val = resourceResolver.Resolve(type, hash);
-				//// TODO: find resource
 			}
 			else
 			{

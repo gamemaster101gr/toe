@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Globalization;
 
 using OpenTK;
+using OpenTK.Graphics.OpenGL;
 
 namespace Toe.Marmalade.Util
 {
@@ -125,6 +126,28 @@ public const uint         PALETTISED_5BIT_F   = (1 << 1);
 		private byte format = 0xA;
 
 		private byte[] data;
+
+		public int Width
+		{
+			get
+			{
+				return width;
+			}
+		}
+		public int Height
+		{
+			get
+			{
+				return height;
+			}
+		}
+		public byte[] Pixels
+		{
+			get
+			{
+				return this.data;
+			}
+		}
 		public void Serialise(IwSerialise serialise)
 		{
 			serialise.UInt8(ref format);
@@ -169,6 +192,20 @@ public const uint         PALETTISED_5BIT_F   = (1 << 1);
 				palette[i] = Color.FromArgb(r, g, b);
 			}
 
+			byte[] d = new byte[height*width*3];
+			int j = 0;
+			for (int y=0;y<height;++y)
+				for (int x = 0; x < width; ++x)
+				{
+					d[j] = palette[data[x + y * pitch]].R;
+					++j;
+					d[j] = palette[data[x + y * pitch]].G;
+					++j;
+					d[j] = palette[data[x + y * pitch]].B;
+					++j;
+				}
+			data = d;
+
 			////using (var b = new Bitmap(width,height))
 			////{
 			////        for (int i = 0; i < height;++i)
@@ -184,7 +221,12 @@ public const uint         PALETTISED_5BIT_F   = (1 << 1);
 		{
 			data = new byte[height * pitch];
 			serialise.Serialise(ref data);
+		}
 
+		public void Upload()
+		{
+			GL.TexImage2D<byte>(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, Width, Height, 0, PixelFormat.Rgb, PixelType.UnsignedByte, Pixels);
+			S3E.CheckOpenGLStatus();
 		}
 	}
 }

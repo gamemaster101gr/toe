@@ -52,5 +52,13 @@ namespace Toe.Marmalade.Util
 		{
 			list.Add(item);
 		}
+
+		public T PopBack()
+		{
+			int index = list.Count - 1;
+			var res = list[index];
+			list.RemoveAt(index);
+			return res;
+		}
 	}
 }

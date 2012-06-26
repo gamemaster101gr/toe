@@ -67,8 +67,8 @@ int main()
 	
 	//IwGetResManager()->LoadGroup("testdata\\empty.group");
 //	IwGetResManager()->LoadGroup("testdata\\texture.group");
-	CIwResGroup* g =  IwGetResManager()->LoadGroup("testdata\\model.group");
-	CIwModel* geo = (CIwModel*)g->GetResNamed("model","CIwModel",0);
+	CIwResGroup* g =  IwGetResManager()->LoadGroup("testdata\\material.group");
+	//CIwModel* geo = (CIwModel*)g->GetResNamed("model","CIwModel",0);
 	//CIwMaterial* mat = (CIwMaterial*)g->GetResNamed("material","CIwMaterial",0);
 	//CIwTexture* t = (CIwTexture*)g->GetResNamed("texture","CIwTexture",0);
 	//CIwTexture* t2 = (CIwTexture*)g->GetResNamed("texture_p","CIwTexture",0);

@@ -61,5 +61,25 @@ namespace Toe.Marmalade.Graphics
 			uint flags = 0;
 			for (int i = 0; i < list.Size; ++i) ((CIwModelBlock)list[i]).Render(this, flags);
 		}
+
+		public T ResolveBlock<T>() where T : class
+		{
+			for (int i = 0; i < list.Size; ++i)
+			{
+				var b = list[i] as T;
+				if (b != null) return b;
+			}
+
+			return null;
+		}
+
+		public CIwMaterial GetMaterial(uint index)
+		{
+			if (materials == null) 
+				return null;
+			if (index >= materials.Length) 
+				return null;
+			return materials[index];
+		}
 	}
 }

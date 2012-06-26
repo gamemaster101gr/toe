@@ -1,60 +1,201 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 using Toe.Marmalade.Util;
 
 namespace Toe.Marmalade.ResManager
 {
-	public class CIwResGroup:CIwManaged
+	/// <summary>
+	/// The c iw res group.
+	/// </summary>
+	public class CIwResGroup : CIwManaged
 	{
-		private UInt32 flags = 0;
-		/// <summary>
-		/// group is "shared" (so involved in more searches).
-		/// </summary>
-		public const uint SharedF = (1 << 0);
+		private bool isDisposed;
+		~CIwResGroup()
+		{
+			if (!isDisposed)
+			{
+				isDisposed = true;
+				this.Dispose(false);
+			}
+		}
+		#region Constants and Fields
 
 		/// <summary>
-		/// group was loaded from binary.
+		/// Group has an atlas.
 		/// </summary>
-		public const uint LoadedF = (1 << 1);         
+		public const uint AtlasF = 1 << 2;
 
 		/// <summary>
-		/// group has an atlas.
+		/// Atlas is ready for upload on load phase.
 		/// </summary>
-		public const uint AtlasF = (1 << 2);         
+		public const uint AtlasReadyF = 1 << 3;
 
 		/// <summary>
-		/// atlas is ready for upload on load phase.
+		/// Group was loaded from binary.
 		/// </summary>
-		public const uint AtlasReadyF = (1 << 3);       
+		public const uint LoadedF = 1 << 1;
 
 		/// <summary>
-		/// group can be mounted.
+		/// Group can be mounted.
 		/// </summary>
-		public const uint MountableF = (1 << 4);        
+		public const uint MountableF = 1 << 4;
 
 		/// <summary>
-		/// group has been optimised - cannot be loaded normally.
+		/// Group has been optimised - cannot be loaded normally.
 		/// </summary>
-		public const uint OptimisedF = (1 << 5);         
+		public const uint OptimisedF = 1 << 5;
 
 		/// <summary>
-		/// this group has already been resolved.
+		/// This group has already been resolved.
 		/// </summary>
-		public const uint RESOLVED_F = (1 << 6);
+		public const uint RESOLVED_F = 1 << 6;
 
-		private CIwArray<CIwResList> lists = new CIwArray<CIwResList>();
-     
+		/// <summary>
+		/// Group is "shared" (so involved in more searches).
+		/// </summary>
+		public const uint SharedF = 1 << 0;
+
+		private readonly List<CIwResGroup> childGroups = new List<CIwResGroup>();
+
+		private readonly CIwArray<CIwResList> lists = new CIwArray<CIwResList>();
+
+		private readonly IwResManager resManager;
+
+		private uint flags;
+
+		#endregion
+
+		#region Constructors and Destructors
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="CIwResGroup"/> class.
+		/// </summary>
+		/// <param name="resManager">
+		/// The res manager.
+		/// </param>
+		public CIwResGroup(IwResManager resManager)
+		{
+			this.resManager = resManager;
+		}
+
+		#endregion
+
+		#region Public Methods and Operators
+
+		/// <summary>
+		/// The get list hashed.
+		/// </summary>
+		/// <param name="toeHash">
+		/// The toe hash.
+		/// </param>
+		/// <returns>
+		/// </returns>
+		public CIwResList GetListHashed(uint toeHash)
+		{
+			for (int i = 0; i < this.lists.Size; ++i)
+			{
+				if (this.lists[i].Hash == toeHash)
+				{
+					return this.lists[i];
+				}
+			}
+
+			return null;
+		}
+
+		/// <summary>
+		/// The get list named.
+		/// </summary>
+		/// <param name="name">
+		/// The name.
+		/// </param>
+		/// <returns>
+		/// </returns>
+		public CIwResList GetListNamed(string name)
+		{
+			return this.GetListHashed(name.ToeHash());
+		}
+
+		/// <summary>
+		/// The get res hashed.
+		/// </summary>
+		/// <param name="name">
+		/// The name.
+		/// </param>
+		/// <param name="type">
+		/// The type.
+		/// </param>
+		/// <returns>
+		/// </returns>
+		public CIwResource GetResHashed(uint name, string type)
+		{
+			return this.GetResHashed(name, type.ToeHash());
+		}
+
+		/// <summary>
+		/// The get res hashed.
+		/// </summary>
+		/// <param name="name">
+		/// The name.
+		/// </param>
+		/// <param name="type">
+		/// The type.
+		/// </param>
+		/// <returns>
+		/// </returns>
+		public CIwResource GetResHashed(uint name, uint type)
+		{
+			var l = this.GetListHashed(type);
+			if (l != null)
+			{
+				return l.GetResHashed(name);
+			}
+
+			return null;
+		}
+
+		/// <summary>
+		/// The get res named.
+		/// </summary>
+		/// <param name="name">
+		/// The name.
+		/// </param>
+		/// <param name="type">
+		/// The type.
+		/// </param>
+		/// <returns>
+		/// </returns>
+		public CIwResource GetResNamed(string name, string type)
+		{
+			return this.GetResHashed(name.ToeHash(), type);
+		}
+
+		/// <summary>
+		/// The parse attribute.
+		/// </summary>
+		/// <param name="pParser">
+		/// The p parser.
+		/// </param>
+		/// <param name="pAttrName">
+		/// The p attr name.
+		/// </param>
+		/// <returns>
+		/// The parse attribute.
+		/// </returns>
 		public override bool ParseAttribute(CIwTextParserITX pParser, string pAttrName)
 		{
 			return base.ParseAttribute(pParser, pAttrName);
 		}
 
+		#endregion
+
+		#region Methods
+
 		internal void Read(IwSerialise iwSerialise)
 		{
 			var b = new IwSerialiseBinaryBlock(iwSerialise);
-			b.Block += ReadBlock;
+			b.Block += this.ReadBlock;
 			b.Serialise();
 		}
 
@@ -80,8 +221,9 @@ namespace Toe.Marmalade.ResManager
 			iwSerialise.UInt8(ref num);
 			while (num > 0)
 			{
-				string path = "";
+				string path = string.Empty;
 				iwSerialise.String(ref path);
+				this.childGroups.Add(this.resManager.LoadGroup(path, false));
 				--num;
 			}
 		}
@@ -90,29 +232,29 @@ namespace Toe.Marmalade.ResManager
 		{
 			uint numResources = 0;
 			serialise.UInt32(ref numResources);
-			while (numResources>0)
+			while (numResources > 0)
 			{
-				//uint resHash = 0;
-				//serialise.UInt32(ref resHash);
+				// uint resHash = 0;
+				// serialise.UInt32(ref resHash);
 				var item = new CIwResList();
 				item.Serialise(serialise);
-				lists.PushBack(item);
+				this.lists.PushBack(item);
 				--numResources;
 			}
 		}
 
 		private void ReadResGroupMembers(IwSerialise iwSerialise)
 		{
-			string name = String.Empty;
+			string name = string.Empty;
 			iwSerialise.String(ref name);
 
-			iwSerialise.UInt32(ref flags);
+			iwSerialise.UInt32(ref this.flags);
 		}
 
 		private void Write(IwSerialise iwSerialise)
 		{
 			var b = new IwSerialiseBinaryBlock(iwSerialise);
-			b.Block += WriteBlock;
+			b.Block += this.WriteBlock;
 			b.Serialise();
 		}
 
@@ -121,44 +263,28 @@ namespace Toe.Marmalade.ResManager
 			throw new NotImplementedException();
 		}
 
-		public bool TryResolve(uint type, uint hash, out CIwResource res)
-		{
-			res = null;
-			return false;
-		}
+		#endregion
 
-		public CIwResList GetListNamed(string name)
+		public void Dispose()
 		{
-			return this.GetListHashed(name.ToeHash());
-		}
-
-		private CIwResList GetListHashed(uint toeHash)
-		{
-			for (int i = 0; i < lists.Size;++i)
+			if (!isDisposed)
 			{
-				if (this.lists[i].Hash == toeHash) return this.lists[i];
+				isDisposed = true;
+				Dispose(true);
+				GC.SuppressFinalize(this);
 			}
-			return null;
 		}
 
-		private CIwResource GetResNamed(string name, string type)
+		protected  virtual void Dispose(bool disposing)
 		{
-			return this.GetResHashed(name.ToeHash(), type);
-		}
-
-		private CIwResource GetResHashed(uint name, string type)
-		{
-			return this.GetResHashed(name, type.ToeHash());
-		}
-
-		private CIwResource GetResHashed(uint name, uint type)
-		{
-			var l = this.GetListHashed(type);
-			if (l != null)
+			if (this.lists != null)
 			{
-				return l.GetResHashed(name);
+				while (this.lists.Size > 0)
+				{
+					var p = this.lists.PopBack();
+					p.Dispose();
+				}
 			}
-			return null;
 		}
 	}
 }

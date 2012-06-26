@@ -46,5 +46,16 @@ namespace Toe.Marmalade.Graphics
 
 		Vector3[] verts;
 		// CIwSVec3*       m_Norms;    //!< vertex normal list
+		public Vector3[] Normal
+		{
+			get
+			{
+				return verts;
+			}
+			set
+			{
+				throw new NotImplementedException();
+			}
+		}
 	}
 }

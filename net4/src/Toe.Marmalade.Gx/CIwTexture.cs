@@ -1,4 +1,6 @@
-﻿using Toe.Marmalade.Util;
+﻿using OpenTK.Graphics.OpenGL;
+
+using Toe.Marmalade.Util;
 
 namespace Toe.Marmalade.Gx
 {
@@ -76,5 +78,61 @@ namespace Toe.Marmalade.Gx
 			bool unknown5 = false;
 			serialise.Bool(ref unknown5);
 		}
+
+		private int glTexture = 0;
+
+		protected int GlTexture
+		{
+			get
+			{
+				if (glTexture == 0)
+				{
+					glTexture = GL.GenTexture();
+					S3E.CheckOpenGLStatus();
+					this.Upload();
+				}
+				return glTexture;
+			}
+		}
+
+		private void Upload()
+		{
+			GL.BindTexture(TextureTarget.Texture2D, this.glTexture);
+			S3E.CheckOpenGLStatus();
+			image.Upload();
+			
+		}
+
+		public void Enable(int index)
+		{
+			GL.ActiveTexture(TextureUnit.Texture0+index);
+			GL.Enable(EnableCap.Texture2D);
+			S3E.CheckOpenGLStatus();
+			GL.BindTexture(TextureTarget.Texture2D, GlTexture);
+
+			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+			GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+			S3E.CheckOpenGLStatus();
+			//GL.Enable(EnableCap.Blend);
+		}
+		public void Disable(int index)
+		{
+			GL.ActiveTexture(TextureUnit.Texture0 + index);
+			GL.Disable(EnableCap.Texture2D);
+			GL.BindTexture(TextureTarget.Texture2D, 0);
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			base.Dispose(disposing);
+
+			if (glTexture != 0)
+			{
+				GL.DeleteTexture(glTexture);
+				glTexture = 0;
+			}
+		}
 	}
 }

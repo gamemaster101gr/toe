@@ -4,6 +4,42 @@ namespace Toe.Marmalade.Util
 {
 	public class CIwManaged : CIwParseable
 	{
+		private bool isDisposed = false;
+
+		~CIwManaged()
+		{
+			if (!isDisposed)
+			{
+				isDisposed = true;
+				this.Dispose(true);
+			}
+		}
+
+		#region Implementation of IDisposable
+
+		/// <summary>
+		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+		/// </summary>
+		/// <filterpriority>2</filterpriority>
+		public void Dispose()
+		{
+			if (!isDisposed)
+			{
+				isDisposed = true;
+				this.Dispose(true);
+				GC.SuppressFinalize(this);
+			}
+		}
+
+		/// <summary>
+		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+		/// </summary>
+		protected virtual void Dispose(bool disposing)
+		{
+		}
+
+		#endregion
+
 		private uint hash;
 
 		public uint Hash

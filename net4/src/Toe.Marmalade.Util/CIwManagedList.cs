@@ -57,5 +57,10 @@ namespace Toe.Marmalade.Util
 				return this.array[i];
 			}
 		}
+
+		public CIwManaged PopBack()
+		{
+			return this.array.PopBack();
+		}
 	}
 }

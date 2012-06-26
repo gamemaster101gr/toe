@@ -7,8 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
+using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
+using Toe.Marmalade;
 using Toe.Marmalade.Graphics;
 using Toe.Marmalade.ResManager;
 
@@ -17,8 +19,8 @@ namespace Toe.Game.Windows
 	public partial class GameWindow : Form
 	{
 		private readonly IwResManager resManager;
-
-		private bool isFullScreen = true;
+		Timer timer = new Timer();
+		private bool isFullScreen = false;
 
 		/// <summary>
 		/// Is window completely loaded.
@@ -38,6 +40,9 @@ namespace Toe.Game.Windows
 			base.OnLoad(e);
 
 			isLoaded = true;
+			timer.Interval = 1000/30;
+			timer.Tick += (s, a) => { this.glControl.Invalidate(); };
+			timer.Start();
 
 			try
 			{
@@ -47,7 +52,18 @@ namespace Toe.Game.Windows
 			{
 				throw;
 			}
+
 			this.ApplyScreenMode();
+		}
+
+		protected override void OnClosing(CancelEventArgs e)
+		{
+			base.OnClosing(e);
+			timer.Stop();
+			if (@group != null)
+			{
+				this.resManager.DestroyGroup(@group);
+			}
 		}
 
 		public bool FullScreen
@@ -84,25 +100,33 @@ namespace Toe.Game.Windows
 			}
 		}
 
+		private float angle = (float)Math.PI / 4;
 		private void RenderGameScreen(object sender, PaintEventArgs e)
 		{
 			if (!isLoaded)
 				return;
 			GL.ClearColor(Color.SkyBlue);
 			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
+			
 			int w = glControl.Width;
 			int h = glControl.Height;
 			GL.MatrixMode(MatrixMode.Projection);
 			GL.LoadIdentity();
-			GL.Ortho(0, w, 0, h, -1, 1); // Верхний левый угол имеет кооординаты(0, 0)
-			GL.Viewport(0, 0, w, h); // Использовать всю поверхность GLControl под рисование
 
-			
+			int hh = 2000 * h / w;
+
+			GL.Ortho(-2000, 2000, -hh, hh, -2000, 2000); // Верхний левый угол имеет кооординаты(0, 0)
+			GL.Viewport(0, 0, w, h); // Использовать всю поверхность GLControl под рисование
+			S3E.CheckOpenGLStatus();
+
+			GL.Enable(EnableCap.DepthTest);
 
 			GL.MatrixMode(MatrixMode.Modelview);
 			GL.LoadIdentity();
-
+			angle += (float)Math.PI / 200;
+			Matrix4 m = Matrix4.CreateRotationY(angle);
+			GL.LoadMatrix(ref m);
+			S3E.CheckOpenGLStatus();
 			if (@group != null)
 			{
 				var models = @group.GetListNamed("CIwModel");
@@ -111,7 +135,7 @@ namespace Toe.Game.Windows
 					for (int i = 0; i < models.Size; ++i)
 					{
 						((CIwModel)models[i]).Render();
-						break;
+						//break;
 					}
 				}
 			}
@@ -122,6 +146,8 @@ namespace Toe.Game.Windows
 			////GL.Vertex2(100, 20);
 			////GL.Vertex2(100, 50);
 			////GL.End();
+			/// 
+			S3E.CheckOpenGLStatus();
 
 			glControl.SwapBuffers();
 		}

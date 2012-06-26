@@ -65,6 +65,16 @@ namespace Toe.Marmalade.ResManager
 				return (CIwResource)resources[i];
 			}
 		}
+
+		protected override void Dispose(bool disposing)
+		{
+			base.Dispose(disposing);
+			while (resources.Size > 0)
+			{
+				var r = resources.PopBack();
+				r.Dispose();
+			}
+		}
 	}
 	public class CIwGroupDirectoryEntry
 	{

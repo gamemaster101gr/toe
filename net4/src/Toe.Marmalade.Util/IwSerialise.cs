@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Text;
@@ -13,6 +14,10 @@ namespace Toe.Marmalade.Util
 	/// </summary>
 	public class IwSerialise : IDisposable
 	{
+		private byte Major = 3;
+		private byte Minor = 6;
+		private byte Revision = 6;
+
 		#region Constants and Fields
 
 		private readonly byte[] buffer = new byte[4];
@@ -65,6 +70,14 @@ namespace Toe.Marmalade.Util
 			set
 			{
 				stream.Position = value;
+			}
+		}
+
+		public long Length
+		{
+			get
+			{
+				return stream.Length;
 			}
 		}
 
@@ -147,21 +160,46 @@ namespace Toe.Marmalade.Util
 				new BinaryWriter(stream).Write((uint)1234);
 				new BinaryReader(stream).ReadUInt32();
 		}
-
+		[System.Security.SecuritySafeCritical]
+		public void Float(float value)
+		{
+			if (this.IsReading())
+				unsafe
+				{
+					this.ReadInfoBuffer(4);
+					uint tmpBuffer = (uint)(this.buffer[0] | this.buffer[1] << 8 | this.buffer[2] << 16 | this.buffer[3] << 24);
+					value = * ((float*)&tmpBuffer);
+				}
+			else
+				unsafe
+				{
+					uint TmpValue = *(uint*)&value;
+					this.buffer[0] = (byte)TmpValue;
+					this.buffer[1] = (byte)(TmpValue >> 8);
+					this.buffer[2] = (byte)(TmpValue >> 16);
+					this.buffer[3] = (byte)(TmpValue >> 24);
+					this.stream.Write(this.buffer, 0, 4);
+				}
+		}
 		public void ManagedObject  (ref CIwManaged pObj)
 		{
 			if (this.mode == IwSerialiseMode.Read)
 			{
 				uint hash = 0;
 				this.UInt32(ref hash);
-				pObj = this.classRegistry.Get(hash).Create();
+				IwClassFactory factory = this.classRegistry.Get(hash);
+				if (factory == null)
+				{
+					throw new FormatException(string.Format("Can't Serialise unknown type 0x{0:x}", hash));
+				}
+				pObj = factory.Create();
 			}
 			else
 			{
 				uint hash = pObj.Hash;
 				this.UInt32(ref hash);
 			}
-
+			Debug.WriteLine(string.Format("Serialise {0}", pObj.GetType().Name));
 			pObj.Serialise(this);
 		}
 
@@ -170,6 +208,10 @@ namespace Toe.Marmalade.Util
 			if (this.mode == IwSerialiseMode.Read)
 			{
 				IwClassFactory factory = this.classRegistry.Get(hash);
+				if (factory == null)
+				{
+					throw new FormatException(string.Format("Can't Serialise unknown type 0x{0:x}", hash));
+				}
 				pObj = factory.Create();
 			}
 			else
@@ -177,8 +219,14 @@ namespace Toe.Marmalade.Util
 				if (hash != pObj.Hash)
 					throw new ArgumentException();
 			}
-
-			pObj.Serialise(this);
+			try
+			{
+				pObj.Serialise(this);
+			} 
+			catch(Exception ex)
+			{
+				throw new FormatException(string.Format("Can't Serialise GetResHashed(0x{0:x}, \"0x{1}\")", pObj.Hash, pObj.GetType().Name), ex);
+			}
 		}
 
 		public void Int32(ref int val)
@@ -214,7 +262,21 @@ namespace Toe.Marmalade.Util
 				this.stream.Write(this.buffer, 0, 4);
 			}
 		}
-
+		public void UInt24(ref uint val)
+		{
+			if (this.mode == IwSerialiseMode.Read)
+			{
+				this.ReadInfoBuffer(3);
+				val = (uint)(buffer[0] | buffer[1] << 8 | buffer[2] << 16);
+			}
+			else
+			{
+				this.buffer[0] = (byte)val;
+				this.buffer[1] = (byte)(val >> 8);
+				this.buffer[2] = (byte)(val >> 16);
+				this.stream.Write(this.buffer, 0, 3);
+			}
+		}
 		public void UInt16(ref ushort val)
 		{
 			if (this.mode == IwSerialiseMode.Read)
@@ -532,8 +594,13 @@ namespace Toe.Marmalade.Util
 
 		public void Serialise(ref ushort[] data)
 		{
-			for (int i = 0; i < data.Length; ++i) this.Serialise(ref data[i]);
+			Serialise(ref data, data.Length);
 		}
+		public void Serialise(ref ushort[] data, int numVerts)
+		{
+			for (int i = 0; i < numVerts; ++i) this.Serialise(ref data[i]);
+		}
+
 		public void Serialise(ref byte[] data)
 		{
 			for (int i = 0; i < data.Length; ++i) this.Serialise(ref data[i]);
@@ -667,5 +734,56 @@ namespace Toe.Marmalade.Util
 			}
 		}
 
+		public void Serialise(ref float[] data)
+		{
+			for (int i = 0; i < data.Length; ++i) this.Serialise(ref data[i]);
+		}
+
+		private void Serialise(ref float value)
+		{
+			this.Float(value);
+		}
+
+		public bool IsVersionOlderThen(int aI, int bI, int cI)
+		{
+			// TODO: fix this
+			return true;
+		}
+
+		public void SetVersion(byte major, byte minor, byte rev)
+		{
+			this.Major = major;
+			this.Minor = minor;
+			this.Revision = rev;
+		}
+
+		public void DebugWrite(long len)
+		{
+			len = Math.Min(256, this.Length - this.Position);
+			var p = this.Position;
+			byte[] buf = new byte[len];
+			this.Serialise(ref buf);
+			int i=0;
+			foreach (var b in buf)
+			{
+				if (0 == (i % 16))
+				{
+					Debug.Write(string.Format("{0:x4}: ", i));
+				} 
+				Debug.Write(string.Format("{0:x2} ", b));
+
+				++i;
+				if (0 == (i % 16))
+				{
+					Debug.WriteLine("");
+				} else if (0 == (i % 8))
+				{
+					Debug.Write("| ");
+				}
+			}
+			Debug.WriteLine("");
+			this.Position = p;
+
+		}
 	}
 }

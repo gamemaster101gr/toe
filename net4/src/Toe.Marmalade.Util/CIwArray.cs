@@ -4,13 +4,29 @@ namespace Toe.Marmalade.Util
 {
 	public class CIwArray<T>
 	{
-		List<T> list = new List<T>();
+		public delegate bool IwArrayItemFunc(ref T index);
+		T[] list;
+
+		private uint size;
+
+		private uint capacity;
 
 		public uint Size
 		{
 			get
 			{
-				return (uint)list.Count;
+				return (uint)size;
+			}
+		}
+		public void ForEach(IwArrayItemFunc f)
+		{
+			if (list != null)
+			for (int index = 0; index < this.Size; index++)
+			{
+				if (!f(ref this.list[index]))
+				{
+					return;
+				}
 			}
 		}
 
@@ -20,20 +36,30 @@ namespace Toe.Marmalade.Util
 			{
 				uint l = 0;
 				serialise.UInt32(ref l);
-				while (list.Count < (int)l)
-				{
-					list.Add(default(T));
-				}
-				while (list.Count > (int)l)
-				{
-					list.RemoveAt(list.Count - 1);
-				}
+				Resize(l);
 			}
 			else
 			{
-				uint l = (uint)list.Count;
-				serialise.UInt32(ref l);
+				uint l = (uint)size;
+				serialise.UInt32(ref size);
 			}
+		}
+
+		private void Resize(uint u)
+		{
+			if (u <= capacity)
+			{
+				size = u;
+				return;
+			}
+			var buf = new T[u * 2];
+			for (int i=0; i<size;++i)
+			{
+				buf[i] = list[i];
+			}
+			list = buf;
+			size = u;
+			return;
 		}
 
 		public T this[int index]
@@ -50,14 +76,14 @@ namespace Toe.Marmalade.Util
 
 		public void PushBack(T item)
 		{
-			list.Add(item);
+			Resize(size + 1);
+			list[size-1] = item;
 		}
 
 		public T PopBack()
 		{
-			int index = list.Count - 1;
-			var res = list[index];
-			list.RemoveAt(index);
+			var res = list[size - 1];
+			this.Resize(size-1);
 			return res;
 		}
 	}

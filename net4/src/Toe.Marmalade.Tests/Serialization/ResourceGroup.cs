@@ -46,14 +46,6 @@ namespace Toe.Marmalade.Tests.Serialization
 		}
 
 		[Test]
-		public void Model2ResourceGroup()
-		{
-			var rm = container.Resolve<IwResManager>();
-			CIwResGroup group = rm.LoadGroup(@"Z:\MyWork\toe.git\data-ram\data-gles1\testdata\model.group.bin", false);
-			//rm.DestroyGroup(group);
-		}
-
-		[Test]
 		public void MaterialResourceGroup()
 		{
 			var rm = container.Resolve<IwResManager>();
@@ -62,18 +54,19 @@ namespace Toe.Marmalade.Tests.Serialization
 		}
 
 		[Test]
-		public void Material2ResourceGroup()
+		public void BikeGles1ResourceGroup()
 		{
 			var rm = container.Resolve<IwResManager>();
-			CIwResGroup group = rm.LoadGroup(@"Z:\MyWork\toe.git\data-ram\data-gles1\testdata\material.group.bin ", false);
+			rm.AddDataPath(@"TestData\data-gles1");
+			CIwResGroup group = rm.LoadGroup(@"TestData\data-gles1\iwgraphicsscalablepipeline.group.bin", false);
 			//rm.DestroyGroup(group);
 		}
-
 		[Test]
-		public void BikeResourceGroup()
+		public void BikeSwResourceGroup()
 		{
 			var rm = container.Resolve<IwResManager>();
-			CIwResGroup group = rm.LoadGroup("TestData\\bike.group.bin", false);
+			rm.AddDataPath(@"TestData\data-sw");
+			CIwResGroup group = rm.LoadGroup(@"TestData\data-sw\iwgraphicsscalablepipeline.group.bin", false);
 			//rm.DestroyGroup(group);
 		}
 	}

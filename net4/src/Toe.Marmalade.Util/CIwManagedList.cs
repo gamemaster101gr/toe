@@ -24,10 +24,6 @@ namespace Toe.Marmalade.Util
 				serialise.ManagedObject(ref m);
 				array[(int)i] = m;
 			}
-			uint hash = 0;
-			serialise.UInt32(ref hash);
-			if (hash != 0)
-				throw new FormatException();
 		}
 
 		/// <summary>

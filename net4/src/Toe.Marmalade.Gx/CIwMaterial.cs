@@ -613,7 +613,14 @@ namespace Toe.Marmalade.Gx
 					GL.AlphaFunc(AlphaFunction.Notequal, this.alphaTestValue / 255.0f);
 					break;
 			}
-
+			if (this.IsFlat)
+			{
+				GL.ShadeModel(ShadingModel.Flat);
+			}
+			else
+			{
+				GL.ShadeModel(ShadingModel.Smooth);
+			}
 			if (this.texture1 != null)
 			{
 				if (this.texture1 != null)
@@ -711,14 +718,7 @@ namespace Toe.Marmalade.Gx
 				this.texture0 = (CIwTexture)t;
 			}
 
-			if (this.IsFlat)
-			{
-				GL.ShadeModel(ShadingModel.Flat);
-			}
-			else
-			{
-				GL.ShadeModel(ShadingModel.Smooth);
-			}
+	
 
 			if (!someFlag)
 			{

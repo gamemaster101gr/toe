@@ -44,8 +44,8 @@ namespace Toe.Marmalade.ResManager
 
 				if (serialise.Position != pos + length)
 				{
+					throw new Exception(string.Format("Parse of {0} failed: wrong position by {1} bytes", res.GetType().Name, serialise.Position - (pos + length)));
 					serialise.Position = pos + length;
-					throw new Exception(string.Format("Parse of {0} failed", res.GetType().Name));
 				}
 			}
 		}

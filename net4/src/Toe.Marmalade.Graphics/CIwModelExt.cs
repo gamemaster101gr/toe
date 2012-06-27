@@ -1,9 +1,11 @@
-﻿namespace Toe.Marmalade.Graphics
+﻿using Toe.Marmalade.Util;
+
+namespace Toe.Marmalade.Graphics
 {
 	/// <summary>
-	/// The c iw model ext.
+	/// Model extension.
 	/// </summary>
-	public class CIwModelExt
+	public class CIwModelExt : CIwManaged
 	{
 	}
 }

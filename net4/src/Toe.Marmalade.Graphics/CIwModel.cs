@@ -10,6 +10,7 @@ namespace Toe.Marmalade.Graphics
 	public class CIwModel: CIwResource
 	{
 		CIwManagedList list = new CIwManagedList();
+		CIwManagedList ext = new CIwManagedList();
 
 		private CIwMaterial[] materials;
 		private CIwSphere sphere = new CIwSphere();
@@ -31,6 +32,7 @@ namespace Toe.Marmalade.Graphics
 			}
 			sphere.Serialise(serialise);
 			list.Serialise(serialise);
+			ext.Serialise(serialise);
 
 			if (serialise.IsReading())
 			{

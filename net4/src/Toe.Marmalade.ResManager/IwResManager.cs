@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
 using Toe.Marmalade.Util;
@@ -70,7 +71,34 @@ namespace Toe.Marmalade.ResManager
 
 		public string ResolveSourceOrBinaryFilePath(string filePath)
 		{
+			bool originalExists;
+			bool binExists;
 			string binFilePath;
+			filePath = filePath.Replace('/', Path.DirectorySeparatorChar);
+			if (!ResolveFilePath(ref filePath, out binFilePath, out originalExists, out binExists))
+			{
+				foreach (var dataFolder in dataFolders)
+				{
+					var f = (filePath.StartsWith(""+Path.DirectorySeparatorChar)) ? Path.Combine(dataFolder, filePath.Substring(1)) : Path.Combine(dataFolder, filePath);
+					if (ResolveFilePath(ref f, out binFilePath, out originalExists, out binExists))
+					{
+						filePath = f;
+						goto success;
+					}
+				}
+				throw new FileNotFoundException(string.Format("file {0} not found", filePath));
+			}
+			success:
+			if (binExists && !originalExists) return Path.GetFullPath(binFilePath);
+			if (originalExists && !binExists) return Path.GetFullPath(filePath);
+			var timeBin = File.GetLastWriteTime(binFilePath);
+			var timeOriginal = File.GetLastWriteTime(filePath);
+			if (timeBin < timeOriginal) return Path.GetFullPath(filePath);
+			return Path.GetFullPath(binFilePath);
+		}
+
+		private static bool ResolveFilePath(ref string filePath, out string binFilePath, out bool originalExists, out bool binExists)
+		{
 			if (filePath.EndsWith(".bin", StringComparison.InvariantCultureIgnoreCase))
 			{
 				binFilePath = filePath;
@@ -80,16 +108,13 @@ namespace Toe.Marmalade.ResManager
 			{
 				binFilePath = filePath + ".bin";
 			}
-			bool binExists = File.Exists(binFilePath);
-			bool originalExists = File.Exists(filePath);
+			binExists = File.Exists(binFilePath);
+			originalExists = File.Exists(filePath);
 			if (!binExists && !originalExists)
-				throw new FileNotFoundException("File not found",filePath);
-			if (binExists && !originalExists) return Path.GetFullPath(binFilePath);
-			if (originalExists && !binExists) return Path.GetFullPath(filePath);
-			var timeBin = File.GetLastWriteTime(binFilePath);
-			var timeOriginal = File.GetLastWriteTime(filePath);
-			if (timeBin < timeOriginal) return Path.GetFullPath(filePath);
-			return Path.GetFullPath(binFilePath);
+			{
+				return false;
+			}
+			return true;
 		}
 
 		#endregion
@@ -149,6 +174,7 @@ namespace Toe.Marmalade.ResManager
 			try
 			{
 				var file = this.ResolveSourceOrBinaryFilePath(groupPath);
+				Debug.Write(string.Format("Loading {0}", file));
 				groups.Add(gr);
 				//Directory.SetCurrentDirectory(Path.GetDirectoryName(file));
 
@@ -244,5 +270,26 @@ namespace Toe.Marmalade.ResManager
 		}
 
 		#endregion
+
+		public void AddDataPath(string folder)
+		{
+			if (Directory.Exists(folder))
+			{
+				dataFolders.Add(Path.GetFullPath(folder));
+				return;
+			}
+			foreach (var dataFolder in dataFolders)
+			{
+				var f = Path.Combine(dataFolder, folder);
+				if (Directory.Exists(folder))
+				{
+					dataFolders.Add(Path.GetFullPath(folder));
+					return;
+				}
+			}
+			throw new DirectoryNotFoundException(string.Format("Directory {0} not found", folder));
+		}
+
+		private List<string> dataFolders = new List<string>();
 	}
 }

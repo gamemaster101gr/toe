@@ -165,12 +165,85 @@ public const uint         PALETTISED_5BIT_F   = (1 << 1);
 				case BGR_888:
 					LoadUncompressed(serialise);
 					break;
+				case PALETTE8_ABGR_1555:
+					this.LoadPaletteABGR1555(serialise);
+					break;
+				case ABGR_1555:
+					this.LoadABGR1555(serialise);
+					break;
+				case RGBA_6666:
+					this.LoadRgba6666(serialise);
+					break;
 				case PALETTE8_RGB_888:
 					Load256ColourPalettised(serialise);
 					break;
 				default:
 					throw new FormatException(string.Format(CultureInfo.CurrentCulture, "Unknown image format 0x{0:x}", this.format));
 			}
+		}
+
+		private void LoadABGR1555(IwSerialise serialise)
+		{
+			var d = new ushort[height * pitch/2];
+			serialise.Serialise(ref d);
+
+			data = new byte[width*height*3];
+			int dst = 0,src=0;
+			for (int y = 0; y < height; ++y)
+				for (int x = 0; x < width; ++x)
+				{
+					var r = d[src];
+					++src;
+					data[dst] = (byte)(((r >> 0) & 0x1F) << 3);
+					++dst;
+					data[dst] = (byte)(((r >> 5) & 0x1F) << 3);
+					++dst;
+					data[dst] = (byte)(((r >> 10) & 0x1F) << 3);
+					++dst;
+				}
+			
+		}
+
+		private void LoadRgba6666(IwSerialise serialise)
+		{
+			uint[] d = new uint[width*height];
+			for (int i=0; i<d.Length;++i)
+			{
+				serialise.UInt24(ref d[i]);
+			}
+			data = new byte[height * pitch*3];
+			
+		}
+
+		private void LoadPaletteABGR1555(IwSerialise serialise)
+		{
+			data = new byte[height * pitch];
+			serialise.Serialise(ref data);
+
+			palette = new Color[256];
+			for (int i = 0; i < palette.Length; ++i)
+			{
+				ushort r = 0;
+				serialise.UInt16(ref r);
+				palette[i] = Color.FromArgb(
+					(byte)(((r >> 10) & 0x1F) << 3),
+					(byte)(((r >> 5) & 0x1F) << 3),
+					(byte)(((r >> 0) & 0x1F) << 3));
+			}
+
+			byte[] d = new byte[height * width * 3];
+			int j = 0;
+			for (int y = 0; y < height; ++y)
+				for (int x = 0; x < width; ++x)
+				{
+					d[j] = palette[data[x + y * pitch]].R;
+					++j;
+					d[j] = palette[data[x + y * pitch]].G;
+					++j;
+					d[j] = palette[data[x + y * pitch]].B;
+					++j;
+				}
+			data = d;
 		}
 
 		private Color[] palette;

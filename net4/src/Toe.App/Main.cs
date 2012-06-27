@@ -28,8 +28,13 @@ namespace Toe.App
 			{
 				Debug.WriteLine(module.GetType().FullName);
 			}
-			
+			AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
 			container.Resolve<IToeApplication>().Run();
+		}
+
+		private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
+		{
+			
 		}
 	}
 }

@@ -6,9 +6,9 @@ namespace Toe.Marmalade.Util
 	{
 		private readonly IwSerialise serialise;
 		byte magic = 0x3D;
-		byte major;
-		byte minor;
-		byte rev;
+		byte major = 3;
+		byte minor = 6;
+		byte rev = 6;
 
 		private long position;
 		private uint length;
@@ -24,6 +24,7 @@ namespace Toe.Marmalade.Util
 			serialise.UInt8(ref major);
 			serialise.UInt8(ref minor);
 			serialise.UInt8(ref rev);
+			serialise.SetVersion(major, minor, rev);
 
 			if (serialise.IsReading() && magic != 0x3D)
 				throw new ArgumentException();
@@ -89,6 +90,7 @@ namespace Toe.Marmalade.Util
 				}
 				if (this.serialise.Position != this.position + this.length)
 				{
+					throw new FormatException(string.Format("Binary block position difference is {0}", this.serialise.Position - (this.position + this.length)));
 					this.serialise.Position = this.position + (long)this.length;
 				}
 			}

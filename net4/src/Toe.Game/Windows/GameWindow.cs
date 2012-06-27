@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -46,10 +47,13 @@ namespace Toe.Game.Windows
 
 			try
 			{
-				@group = this.resManager.LoadGroup(@"Z:\MyWork\toe.git\net4\src\Toe.Marmalade.Tests\TestData\bike.group.bin", false);
+
+				@group = this.resManager.LoadGroup(@"Z:\MyWork\toe.git\net4\src\Toe.Marmalade.Tests\TestData\data-sw\scalablepipeline\bike.group.bin", false);
+				//@group = this.resManager.LoadGroup(@"Z:\MyWork\toe.git\net4\src\Toe.Marmalade.Tests\TestData\data-gles1\scalablepipeline\bike.group.bin", false);
 			}
 			catch(Exception ex)
 			{
+				Debug.Write(ex.ToString());
 				throw;
 			}
 

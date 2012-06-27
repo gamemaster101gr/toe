@@ -7,7 +7,6 @@ namespace Toe.Marmalade.Graphics
 		public override void Serialise(Util.IwSerialise serialise)
 		{
 			base.Serialise(serialise);
-			throw new NotImplementedException();
 		}
 	}
 }

@@ -223,7 +223,10 @@ namespace Toe.Marmalade.ResManager
 			{
 				string path = string.Empty;
 				iwSerialise.String(ref path);
-				this.childGroups.Add(this.resManager.LoadGroup(path, false));
+				if (!string.IsNullOrEmpty(path))
+				{
+					this.childGroups.Add(this.resManager.LoadGroup(path, false));
+				}
 				--num;
 			}
 		}

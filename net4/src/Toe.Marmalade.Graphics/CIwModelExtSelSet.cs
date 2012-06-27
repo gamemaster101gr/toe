@@ -3,7 +3,7 @@
 	/// <summary>
 	/// The c iw model ext sel set.
 	/// </summary>
-	public class CIwModelExtSelSet
+	public class CIwModelExtSelSet : CIwModelExt
 	{
 	}
 }

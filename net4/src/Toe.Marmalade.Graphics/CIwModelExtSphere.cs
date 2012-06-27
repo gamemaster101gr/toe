@@ -3,7 +3,7 @@
 	/// <summary>
 	/// The c iw model ext sphere.
 	/// </summary>
-	public class CIwModelExtSphere
+	public class CIwModelExtSphere : CIwModelExt
 	{
 	}
 }

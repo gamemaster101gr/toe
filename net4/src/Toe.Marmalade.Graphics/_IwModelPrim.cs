@@ -41,26 +41,36 @@ namespace Toe.Marmalade.Graphics
 				//serialise.Int16(ref this.m_U0[3 * 2]);
 				//serialise.Int16(ref this.m_U0[3 * 2 + 1]);
 
-
-				serialise.Int16(ref this.m_U0[1 * 2]);
-				serialise.Int16(ref this.m_U0[1 * 2 + 1]);
-
-				serialise.Int16(ref this.m_U0[2 * 2]);
-				serialise.Int16(ref this.m_U0[2 * 2 + 1]);
-
 				if (0 != (this.m_Flags & IW_MODEL_PRIM_QUAD_F))
 				{
+					serialise.Int16(ref this.m_U0[0 * 2]);
+					serialise.Int16(ref this.m_U0[0 * 2 + 1]);
+
+					serialise.Int16(ref this.m_U0[2 * 2]);
+					serialise.Int16(ref this.m_U0[2 * 2 + 1]);
+
 					serialise.Int16(ref this.m_U0[3 * 2]);
 					serialise.Int16(ref this.m_U0[3 * 2 + 1]);
+
+					serialise.Int16(ref this.m_U0[1 * 2]);
+					serialise.Int16(ref this.m_U0[1 * 2 + 1]);
 				}
-				serialise.Int16(ref this.m_U0[0 * 2]);
-				serialise.Int16(ref this.m_U0[0 * 2 + 1]);
-				if (0 == (this.m_Flags & IW_MODEL_PRIM_QUAD_F))
+				else
 				{
-					// discarded
+					serialise.Int16(ref this.m_U0[0 * 2]);
+					serialise.Int16(ref this.m_U0[0 * 2 + 1]);
+
+					serialise.Int16(ref this.m_U0[2 * 2]);
+					serialise.Int16(ref this.m_U0[2 * 2 + 1]);
+
+					serialise.Int16(ref this.m_U0[1 * 2]);
+					serialise.Int16(ref this.m_U0[1 * 2 + 1]);
+
 					serialise.Int16(ref this.m_U0[3 * 2]);
 					serialise.Int16(ref this.m_U0[3 * 2 + 1]);
 				}
+
+
 			}
 		}
 
@@ -83,17 +93,13 @@ namespace Toe.Marmalade.Graphics
 			}
 			else
 			{
-				int a = 0;
-				int b = 1;
-				int c = 2;
-				int d = 3;
-				this.RenderVertex(c, verts, indGroups, colors);
-				this.RenderVertex(b, verts, indGroups, colors);
-				this.RenderVertex(a, verts, indGroups, colors);
+				this.RenderVertex(3, verts, indGroups, colors);
+				this.RenderVertex(1, verts, indGroups, colors);
+				this.RenderVertex(0, verts, indGroups, colors);
 
-				this.RenderVertex(b, verts, indGroups, colors);
-				this.RenderVertex(c, verts, indGroups, colors);
-				this.RenderVertex(d, verts, indGroups, colors);
+				this.RenderVertex(2, verts, indGroups, colors);
+				this.RenderVertex(3, verts, indGroups, colors);
+				this.RenderVertex(0, verts, indGroups, colors);
 			}
 		}
 

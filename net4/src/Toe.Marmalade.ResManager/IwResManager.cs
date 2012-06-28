@@ -174,7 +174,7 @@ namespace Toe.Marmalade.ResManager
 			try
 			{
 				var file = this.ResolveSourceOrBinaryFilePath(groupPath);
-				Debug.Write(string.Format("Loading {0}", file));
+				Debug.WriteLine(string.Format("Loading {0}", file));
 				groups.Add(gr);
 				//Directory.SetCurrentDirectory(Path.GetDirectoryName(file));
 

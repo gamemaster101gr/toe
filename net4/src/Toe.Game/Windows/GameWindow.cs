@@ -43,7 +43,6 @@ namespace Toe.Game.Windows
 			isLoaded = true;
 			timer.Interval = 1000/30;
 			timer.Tick += (s, a) => { this.glControl.Invalidate(); };
-			timer.Start();
 
 			try
 			{
@@ -58,6 +57,7 @@ namespace Toe.Game.Windows
 			}
 
 			this.ApplyScreenMode();
+			timer.Start();
 		}
 
 		protected override void OnClosing(CancelEventArgs e)

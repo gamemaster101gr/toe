@@ -90,7 +90,7 @@ namespace Toe.Marmalade.Util
 				}
 				if (this.serialise.Position != this.position + this.length)
 				{
-					throw new FormatException(string.Format("Binary block position difference is {0}", this.serialise.Position - (this.position + this.length)));
+					throw new FormatException(string.Format("{0}: Binary block position difference is {1} at 0x{2:x8}", serialise, this.serialise.Position - (this.position + this.length), this.serialise.Position));
 					this.serialise.Position = this.position + (long)this.length;
 				}
 			}

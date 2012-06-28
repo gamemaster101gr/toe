@@ -227,8 +227,22 @@ namespace Toe.Marmalade.ResManager
 				{
 					this.childGroups.Add(this.resManager.LoadGroup(path, false));
 				}
+				{
+					uint value = 0;
+					iwSerialise.UInt32(ref value);
+				}
+				{
+					int value = 0x00001000;
+					iwSerialise.Int32(ref value);
+				}
+				{
+					uint value = 0xd9794596;
+					iwSerialise.UInt32(ref value);
+					var f = iwSerialise.ClassRegistry.Get(value);
+				}
 				--num;
 			}
+			
 		}
 
 		private void ReadGroupResources(IwSerialise serialise)

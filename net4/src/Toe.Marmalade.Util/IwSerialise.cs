@@ -81,6 +81,14 @@ namespace Toe.Marmalade.Util
 			}
 		}
 
+		public ClassRegistry ClassRegistry
+		{
+			get
+			{
+				return this.classRegistry;
+			}
+		}
+
 		#endregion
 
 		#region Public Methods and Operators
@@ -187,7 +195,7 @@ namespace Toe.Marmalade.Util
 			{
 				uint hash = 0;
 				this.UInt32(ref hash);
-				IwClassFactory factory = this.classRegistry.Get(hash);
+				IwClassFactory factory = this.ClassRegistry.Get(hash);
 				if (factory == null)
 				{
 					throw new FormatException(string.Format("Can't Serialise unknown type 0x{0:x}", hash));
@@ -207,7 +215,7 @@ namespace Toe.Marmalade.Util
 		{
 			if (this.mode == IwSerialiseMode.Read)
 			{
-				IwClassFactory factory = this.classRegistry.Get(hash);
+				IwClassFactory factory = this.ClassRegistry.Get(hash);
 				if (factory == null)
 				{
 					throw new FormatException(string.Format("Can't Serialise unknown type 0x{0:x}", hash));
@@ -227,6 +235,15 @@ namespace Toe.Marmalade.Util
 			{
 				throw new FormatException(string.Format("Can't Serialise GetResHashed(0x{0:x}, \"0x{1}\")", pObj.Hash, pObj.GetType().Name), ex);
 			}
+		}
+
+		public override string ToString()
+		{
+			if (stream is FileStream)
+			{
+				return ((FileStream)stream).Name;
+			}
+			return base.ToString();
 		}
 
 		public void Int32(ref int val)

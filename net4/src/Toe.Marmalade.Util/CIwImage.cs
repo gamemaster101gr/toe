@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 
@@ -162,19 +163,27 @@ public const uint         PALETTISED_5BIT_F   = (1 << 1);
 			switch (format)
 			{
 				case ABGR_8888:
+					Debug.WriteLine(string.Format("Image ABGR_8888 {0}x{1}", width, height));
+					LoadUncompressed(serialise);
+					break;
 				case BGR_888:
+					Debug.WriteLine(string.Format("Image BGR_888 {0}x{1}", width, height));
 					LoadUncompressed(serialise);
 					break;
 				case PALETTE8_ABGR_1555:
+					Debug.WriteLine(string.Format("Image PALETTE8_ABGR_1555 {0}x{1}", width, height));
 					this.LoadPaletteABGR1555(serialise);
 					break;
 				case ABGR_1555:
+					Debug.WriteLine(string.Format("Image ABGR_1555 {0}x{1}", width, height));
 					this.LoadABGR1555(serialise);
 					break;
 				case RGBA_6666:
+					Debug.WriteLine(string.Format("Image RGBA_6666 {0}x{1}", width, height));
 					this.LoadRgba6666(serialise);
 					break;
 				case PALETTE8_RGB_888:
+					Debug.WriteLine(string.Format("Image PALETTE8_RGB_888 {0}x{1}", width, height));
 					Load256ColourPalettised(serialise);
 					break;
 				default:

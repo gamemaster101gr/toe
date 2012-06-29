@@ -67,8 +67,11 @@ int main()
 	
 	//IwGetResManager()->LoadGroup("testdata\\empty.group");
 //	IwGetResManager()->LoadGroup("testdata\\texture.group");
-	CIwResGroup* g =  IwGetResManager()->LoadGroup("testdata\\material.group");
+	CIwResGroup* g =  IwGetResManager()->LoadGroup("testdata\\3bones\\model.group");
 	//CIwModel* geo = (CIwModel*)g->GetResNamed("model","CIwModel",0);
+	//CIwAnimSkel* skel = (CIwAnimSkel*)g->GetResNamed("model","CIwAnimSkel",0);
+	//CIwAnimSkin* skin = (CIwAnimSkin*)g->GetResNamed("model","CIwAnimSkin",0);
+	CIwAnim* anim = (CIwAnim*)g->GetResNamed("model","CIwAnim",0);
 	
 	//CIwMaterial* mat = (CIwMaterial*)g->GetResNamed("material","CIwMaterial",0);
 	//CIwTexture* t = (CIwTexture*)g->GetResNamed("texture","CIwTexture",0);

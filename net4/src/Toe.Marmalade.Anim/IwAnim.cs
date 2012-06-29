@@ -70,6 +70,8 @@ namespace Toe.Marmalade.Anim
 			this.classRegistry.Add(typeof(CIwAnimSkel));
 			this.classRegistry.Add(typeof(CIwAnimSkinSet));
 			this.classRegistry.Add(typeof(CIwAnimSkin));
+			this.classRegistry.Add(typeof(CIwAnimKeyFrame));
+			
 			this.classRegistry.Add(typeof(CIwResTemplateANIM));
 			this.classRegistry.Add(typeof(CIwResHandlerANIM));
 			this.classRegistry.Add(typeof(CIwResTemplateSKEL));

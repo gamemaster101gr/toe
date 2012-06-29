@@ -1,44 +1,48 @@
-using System;
-using System.Diagnostics;
-
 using OpenTK.Graphics.OpenGL;
 
 using Toe.Marmalade.Gx;
+using Toe.Marmalade.Util;
 
 namespace Toe.Marmalade.Graphics
 {
+	/// <summary>
+	/// The c iw model block prim base.
+	/// </summary>
 	public class CIwModelBlockPrimBase : CIwModelBlock
 	{
-		private _IwModelPrim[] prims;
+		#region Constants and Fields
+
+		private uint m_MaterialID;
+
+		private ushort m_NumTupleIDs; // number of tuples used by this block
 
 		private ushort[] m_TupleIDs;
-		private uint m_MaterialID;
-		ushort m_NumTupleIDs;  // number of tuples used by this block
 
-		public override void Serialise(Util.IwSerialise serialise)
-		{
-			base.Serialise(serialise);
+		private _IwModelPrim[] prims;
 
-			serialise.UInt32(ref m_MaterialID);
-			serialise.UInt16(ref m_NumTupleIDs);
+		#endregion
 
-			if (serialise.IsReading())
-			{
-				m_TupleIDs = new ushort[m_NumTupleIDs];
-				prims = new _IwModelPrim[this.numItems];
-			}
+		#region Public Methods and Operators
 
-			serialise.Serialise(ref m_TupleIDs);
-
-			for (int i=0; i<this.numItems;++i)
-				prims[i].Serialise(serialise);
-		}
-
+		/// <summary>
+		/// The render.
+		/// </summary>
+		/// <param name="model">
+		/// The model.
+		/// </param>
+		/// <param name="flags">
+		/// The flags.
+		/// </param>
+		/// <returns>
+		/// The render.
+		/// </returns>
 		public override uint Render(CIwModel model, uint flags)
 		{
-			CIwMaterial material = model.GetMaterial(m_MaterialID);
+			CIwMaterial material = model.GetMaterial(this.m_MaterialID);
 			if (material != null)
+			{
 				material.Enable();
+			}
 
 			S3E.CheckOpenGLStatus();
 			GL.Begin(BeginMode.Triangles);
@@ -47,10 +51,10 @@ namespace Toe.Marmalade.Graphics
 			var colors = model.ResolveBlock<CIwModelBlockCols>();
 			var normals = model.ResolveBlock<CIwModelBlockNorms>();
 			var indGroups = model.ResolveBlock<CIwModelBlockIndGroups>();
-			
+
 			if (verts != null)
 			{
-				foreach (var iwModelPrim in prims)
+				foreach (var iwModelPrim in this.prims)
 				{
 					iwModelPrim.Render(model, flags, verts, indGroups, colors);
 				}
@@ -58,10 +62,42 @@ namespace Toe.Marmalade.Graphics
 
 			GL.End();
 			if (material != null)
+			{
 				material.Disable();
+			}
+
 			S3E.CheckOpenGLStatus();
 
 			return 0;
 		}
+
+		/// <summary>
+		/// The serialise.
+		/// </summary>
+		/// <param name="serialise">
+		/// The serialise.
+		/// </param>
+		public override void Serialise(IwSerialise serialise)
+		{
+			base.Serialise(serialise);
+
+			serialise.UInt32(ref this.m_MaterialID);
+			serialise.UInt16(ref this.m_NumTupleIDs);
+
+			if (serialise.IsReading())
+			{
+				this.m_TupleIDs = new ushort[this.m_NumTupleIDs];
+				this.prims = new _IwModelPrim[this.numItems];
+			}
+
+			serialise.Serialise(ref this.m_TupleIDs);
+
+			for (int i = 0; i < this.numItems; ++i)
+			{
+				this.prims[i].Serialise(serialise);
+			}
+		}
+
+		#endregion
 	}
 }

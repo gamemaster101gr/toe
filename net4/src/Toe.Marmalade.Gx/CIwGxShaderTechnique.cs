@@ -10,22 +10,29 @@ namespace Toe.Marmalade.Gx
 	/// </summary>
 	public class CIwGxShaderTechnique : CIwResource
 	{
-		public override void Serialise(IwSerialise serialise)
-		{
-			base.Serialise(serialise);
-			SerialiseLenStrZ(serialise, ref vertexShader);
-			SerialiseLenStrZ(serialise, ref fragmentShader);
+		#region Constants and Fields
 
-			shaderParams.SerialiseHeader(serialise);
+		private readonly CIwArray<CIwGxShaderUniform> shaderParams = new CIwArray<CIwGxShaderUniform>();
 
-			for (int i = 0; i < shaderParams.Size; ++i)
-			{
-				if (shaderParams[i] == null)
-					shaderParams[i] = new CIwGxShaderUniform();
-				shaderParams[i].Serialise(serialise);
-			}
-		}
+		private string fragmentShader;
 
+		private string vertexShader;
+
+		#endregion
+
+		#region Public Methods and Operators
+
+		/// <summary>
+		/// The serialise len str z.
+		/// </summary>
+		/// <param name="serialise">
+		/// The serialise.
+		/// </param>
+		/// <param name="str">
+		/// The str.
+		/// </param>
+		/// <exception cref="NotImplementedException">
+		/// </exception>
 		public static void SerialiseLenStrZ(IwSerialise serialise, ref string str)
 		{
 			if (serialise.IsReading())
@@ -42,93 +49,204 @@ namespace Toe.Marmalade.Gx
 			}
 		}
 
-		private string fragmentShader;
+		/// <summary>
+		/// The serialise.
+		/// </summary>
+		/// <param name="serialise">
+		/// The serialise.
+		/// </param>
+		public override void Serialise(IwSerialise serialise)
+		{
+			base.Serialise(serialise);
+			SerialiseLenStrZ(serialise, ref this.vertexShader);
+			SerialiseLenStrZ(serialise, ref this.fragmentShader);
 
-		private string vertexShader;
-	//char* m_ShaderSource[2];
-	//int32 m_ShaderSourceLen[2];
-	CIwArray<CIwGxShaderUniform> shaderParams = new CIwArray<CIwGxShaderUniform>();
-	//CIwGxPlatformShader * m_ProgramID;
-	//CIwGxDefaultUniformParams* m_pUniformLocations;
-	//bool m_Enabled;
+			this.shaderParams.SerialiseHeader(serialise);
+
+			for (int i = 0; i < this.shaderParams.Size; ++i)
+			{
+				if (this.shaderParams[i] == null)
+				{
+					this.shaderParams[i] = new CIwGxShaderUniform();
+				}
+
+				this.shaderParams[i].Serialise(serialise);
+			}
+		}
+
+		#endregion
+
+		// char* m_ShaderSource[2];
+		// int32 m_ShaderSourceLen[2];
+
+		// CIwGxPlatformShader * m_ProgramID;
+		// CIwGxDefaultUniformParams* m_pUniformLocations;
+		// bool m_Enabled;
 	}
 
+	/// <summary>
+	/// The c iw gx shader uniform.
+	/// </summary>
 	public class CIwGxShaderUniform
 	{
+		#region Constants and Fields
+
+		/// <summary>
+		/// The componen t_1.
+		/// </summary>
 		public const uint COMPONENT_1 = 0;
 
+		/// <summary>
+		/// The componen t_2.
+		/// </summary>
 		public const uint COMPONENT_2 = 1;
 
+		/// <summary>
+		/// The componen t_3.
+		/// </summary>
 		public const uint COMPONENT_3 = 2;
 
+		/// <summary>
+		/// The componen t_4.
+		/// </summary>
 		public const uint COMPONENT_4 = 3;
 
-		public const uint TYPE_FLOAT = (1 << 2);
+		/// <summary>
+		/// The float.
+		/// </summary>
+		public const uint FLOAT = TYPE_FLOAT | COMPONENT_1; // !< 'float' GLSL type (or equivalent)
 
-		public const uint TYPE_INT = (2 << 2);
+		/// <summary>
+		/// The int.
+		/// </summary>
+		public const uint INT = TYPE_INT | COMPONENT_1; // !< 'int' GLSL type (or equivalent)
 
-		public const uint TYPE_MAT = (3 << 2);
+		/// <summary>
+		/// The ive c 2.
+		/// </summary>
+		public const uint IVEC2 = TYPE_INT | COMPONENT_2; // !< 'ivec2' GLSL type (or equivalent)
 
-		public const uint FLOAT = TYPE_FLOAT | COMPONENT_1; //!< 'float' GLSL type (or equivalent)
+		/// <summary>
+		/// The ive c 3.
+		/// </summary>
+		public const uint IVEC3 = TYPE_INT | COMPONENT_3; // !< 'ivec3' GLSL type (or equivalent)
 
-		public const uint VEC2 = TYPE_FLOAT | COMPONENT_2; //!< 'vec2' GLSL type (or equivalent)
+		/// <summary>
+		/// The ive c 4.
+		/// </summary>
+		public const uint IVEC4 = TYPE_INT | COMPONENT_4; // !< 'ivec4' GLSL type (or equivalent)
 
-		public const uint VEC3 = TYPE_FLOAT | COMPONENT_3; //!< 'vec3' GLSL type (or equivalent)
+		/// <summary>
+		/// The ma t 2.
+		/// </summary>
+		public const uint MAT2 = TYPE_MAT | COMPONENT_2; // !< 'mat2' GLSL type (or equivalent)
 
-		public const uint VEC4 = TYPE_FLOAT | COMPONENT_4; //!< 'vec4' GLSL type (or equivalent)
+		/// <summary>
+		/// The ma t 3.
+		/// </summary>
+		public const uint MAT3 = TYPE_MAT | COMPONENT_3; // !< 'mat3' GLSL type (or equivalent)
 
-		public const uint INT = TYPE_INT | COMPONENT_1; //!< 'int' GLSL type (or equivalent)
+		/// <summary>
+		/// The ma t 4.
+		/// </summary>
+		public const uint MAT4 = TYPE_MAT | COMPONENT_4; // !< 'mat4' GLSL type (or equivalent)
 
-		public const uint IVEC2 = TYPE_INT | COMPONENT_2; //!< 'ivec2' GLSL type (or equivalent)
+		/// <summary>
+		/// The typ e_ float.
+		/// </summary>
+		public const uint TYPE_FLOAT = 1 << 2;
 
-		public const uint IVEC3 = TYPE_INT | COMPONENT_3; //!< 'ivec3' GLSL type (or equivalent)
+		/// <summary>
+		/// The typ e_ int.
+		/// </summary>
+		public const uint TYPE_INT = 2 << 2;
 
-		public const uint IVEC4 = TYPE_INT | COMPONENT_4; //!< 'ivec4' GLSL type (or equivalent)
-
-		public const uint MAT2 = TYPE_MAT | COMPONENT_2; //!< 'mat2' GLSL type (or equivalent)
-
-		public const uint MAT3 = TYPE_MAT | COMPONENT_3; //!< 'mat3' GLSL type (or equivalent)
-
-		public const uint MAT4 = TYPE_MAT | COMPONENT_4; //!< 'mat4' GLSL type (or equivalent)
-
+		/// <summary>
+		/// The typ e_ mask.
+		/// </summary>
 		public const uint TYPE_MASK = 0xffff << 2;
+
+		/// <summary>
+		/// The typ e_ mat.
+		/// </summary>
+		public const uint TYPE_MAT = 3 << 2;
+
+		/// <summary>
+		/// The ve c 2.
+		/// </summary>
+		public const uint VEC2 = TYPE_FLOAT | COMPONENT_2; // !< 'vec2' GLSL type (or equivalent)
+
+		/// <summary>
+		/// The ve c 3.
+		/// </summary>
+		public const uint VEC3 = TYPE_FLOAT | COMPONENT_3; // !< 'vec3' GLSL type (or equivalent)
+
+		/// <summary>
+		/// The ve c 4.
+		/// </summary>
+		public const uint VEC4 = TYPE_FLOAT | COMPONENT_4; // !< 'vec4' GLSL type (or equivalent)
+
+		private int arraySize;
+
+		private uint flags;
+
+		private float[] floatData;
 
 		private string name;
 
-		private UInt32 type;
+		private uint type;
 
-		private Int32 arraySize;
+		#endregion
 
-		private UInt32 flags;
+		#region Properties
 
-		private bool IsFloat 
-		{ 
+		private bool IsFloat
+		{
 			get
 			{
-				return (type & TYPE_MASK) == TYPE_FLOAT;
-			} 
+				return (this.type & TYPE_MASK) == TYPE_FLOAT;
+			}
 		}
+
 		private bool IsInt
 		{
 			get
 			{
-				return (type & TYPE_MASK) == TYPE_INT;
+				return (this.type & TYPE_MASK) == TYPE_INT;
 			}
 		}
+
 		private bool IsMat
 		{
 			get
 			{
-				return (type & TYPE_MASK) == TYPE_MAT;
+				return (this.type & TYPE_MASK) == TYPE_MAT;
 			}
 		}
+
 		private uint NumberOfComponents
 		{
 			get
 			{
-				return (type & ~TYPE_MASK)+1;
+				return (this.type & ~TYPE_MASK) + 1;
 			}
 		}
+
+		#endregion
+
+		#region Public Methods and Operators
+
+		/// <summary>
+		/// The serialise len str.
+		/// </summary>
+		/// <param name="serialise">
+		/// The serialise.
+		/// </param>
+		/// <param name="str">
+		/// The str.
+		/// </param>
+		/// <exception cref="NotImplementedException">
+		/// </exception>
 		public static void SerialiseLenStr(IwSerialise serialise, ref string str)
 		{
 			if (serialise.IsReading())
@@ -144,36 +262,44 @@ namespace Toe.Marmalade.Gx
 				throw new NotImplementedException();
 			}
 		}
-	public void Serialise(IwSerialise serialise)
+
+		/// <summary>
+		/// The serialise.
+		/// </summary>
+		/// <param name="serialise">
+		/// The serialise.
+		/// </param>
+		/// <exception cref="NotImplementedException">
+		/// </exception>
+		/// <exception cref="NotImplementedException">
+		/// </exception>
+		public void Serialise(IwSerialise serialise)
 		{
-			SerialiseLenStr(serialise, ref name);
-			serialise.UInt32(ref type);
-			serialise.Int32(ref arraySize);
+			SerialiseLenStr(serialise, ref this.name);
+			serialise.UInt32(ref this.type);
+			serialise.Int32(ref this.arraySize);
 			serialise.UInt32(ref this.flags);
-		if (serialise.IsReading())
-		{
-			if (IsFloat)
+			if (serialise.IsReading())
 			{
-				floatData = new float[arraySize * NumberOfComponents];
-				serialise.Serialise(ref floatData);
+				if (this.IsFloat)
+				{
+					this.floatData = new float[this.arraySize * this.NumberOfComponents];
+					serialise.Serialise(ref this.floatData);
+				}
+				else
+				{
+					throw new NotImplementedException();
+				}
 			}
 			else
 			{
 				throw new NotImplementedException();
 			}
 		}
-		else
-		{
-			throw new NotImplementedException();
-		}
-		}
 
-		private float[] floatData;
+		#endregion
 	}
 }
-
-
-
 
 ////0x00000006
 ////    Toe.App!IwSerialiseUInt32()  + 0x110 bytes	
@@ -191,8 +317,6 @@ namespace Toe.Marmalade.Gx
 ////    Toe.App!IwSerialiseFloat()  + 0x110 bytes	
 ////    Toe.App!CIwGxShaderUniform::Serialise()  + 0x11f bytes	
 ////    Toe.App!CIwGxShaderTechnique::Serialise()  + 0x18c bytes	
-
-
 
 ////0x0000000b
 ////    Toe.App!IwSerialiseInt32()  + 0x110 bytes	
@@ -218,8 +342,6 @@ namespace Toe.Marmalade.Gx
 ////    Toe.App!IwSerialiseFloat()  + 0x110 bytes	
 ////    Toe.App!CIwGxShaderUniform::Serialise()  + 0x11f bytes	
 ////    Toe.App!CIwGxShaderTechnique::Serialise()  + 0x18c bytes	
-
-
 
 ////0x0000000a
 ////    Toe.App!IwSerialiseInt32()  + 0x110 bytes	

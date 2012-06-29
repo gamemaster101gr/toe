@@ -25,8 +25,6 @@ namespace Toe.Core
 		/// </summary>
 		internal GameObject[] Objects;
 
-		private int numOfAvailable = 0;
-
 		private readonly ClassRegistry classRegistry;
 
 		private readonly Queue<GameComponent> componentsTrashQueue = new Queue<GameComponent>();
@@ -71,6 +69,8 @@ namespace Toe.Core
 		/// </summary>
 		private int lastOccupied;
 
+		private int numOfAvailable;
+
 		#endregion
 
 		#region Constructors and Destructors
@@ -112,6 +112,21 @@ namespace Toe.Core
 
 		#endregion
 
+		#region Public Properties
+
+		/// <summary>
+		/// Gets NumOfAvailable.
+		/// </summary>
+		public int NumOfAvailable
+		{
+			get
+			{
+				return this.numOfAvailable;
+			}
+		}
+
+		#endregion
+
 		#region Public Methods and Operators
 
 		/// <summary>
@@ -124,6 +139,25 @@ namespace Toe.Core
 			var t = new T();
 			this.messageQueue.Enqueue(t);
 			return t;
+		}
+
+		/// <summary>
+		/// The attach object.
+		/// </summary>
+		/// <param name="child">
+		/// The child.
+		/// </param>
+		/// <param name="parent">
+		/// The parent.
+		/// </param>
+		public void AttachObject(GameObjectReference child, GameObjectReference parent)
+		{
+			if (child.IsNil || parent.IsNil)
+			{
+				return;
+			}
+
+			this.AttachObject(child, ref this.Objects[child.Index], parent, ref this.Objects[parent.Index]);
 		}
 
 		/// <summary>
@@ -149,10 +183,27 @@ namespace Toe.Core
 			{
 				this.Resize(this.Objects.Length * 2);
 			}
+
 			var r = this.firstAvailable;
 			this.MakeOccupiedFromAvailable(r);
 
 			return new GameObjectReference(r, this.Objects[r].Uid);
+		}
+
+		/// <summary>
+		/// The detach object.
+		/// </summary>
+		/// <param name="index">
+		/// The index.
+		/// </param>
+		public void DetachObject(GameObjectReference index)
+		{
+			if (index.IsNil)
+			{
+				return;
+			}
+
+			this.DetachObject(index, ref this.Objects[index.Index]);
 		}
 
 		/// <summary>
@@ -174,7 +225,8 @@ namespace Toe.Core
 		/// </summary>
 		public void ProcessGame()
 		{
-			while (this.messageQueue.Count > 0 || this.firstGarbage != 0 || this.firstMovedObject != 0 || this.componentsTrashQueue.Count > 0)
+			while (this.messageQueue.Count > 0 || this.firstGarbage != 0 || this.firstMovedObject != 0
+			       || this.componentsTrashQueue.Count > 0)
 			{
 				this.ProcessMessages();
 
@@ -195,19 +247,20 @@ namespace Toe.Core
 		public void Resize(int numObjects)
 		{
 			throw new NotImplementedException();
-			//int current = this.Objects.Length;
-			//if (current >= numObjects)
-			//{
-			//    return;
-			//}
 
-			//Serialise.Resize(ref this.Objects, numObjects);
+			// int current = this.Objects.Length;
+			// if (current >= numObjects)
+			// {
+			// return;
+			// }
 
-			//while (current < numObjects)
-			//{
-			//    this.InitGameObject(current, ref this.Objects[current]);
-			//    ++current;
-			//}
+			// Serialise.Resize(ref this.Objects, numObjects);
+
+			// while (current < numObjects)
+			// {
+			// this.InitGameObject(current, ref this.Objects[current]);
+			// ++current;
+			// }
 		}
 
 		/// <summary>
@@ -256,61 +309,6 @@ namespace Toe.Core
 			msg.DestinationComponent = component;
 			return msg;
 		}
-		public void DetachObject(GameObjectReference index)
-		{
-			if (index.IsNil)
-				return;
-			this.DetachObject(index, ref this.Objects[index.Index]);
-		}
-
-		private void DetachObject(GameObjectReference index, ref GameObject gameObject)
-		{
-			if (index.Uid != gameObject.Uid)
-				return;
-			if (gameObject.Parent == 0)
-				return;
-
-			// TODO: update world position by don't notify yet
-			this.UpdateWorldPositionAndNotifyComponents(ref gameObject);
-
-			gameObject.DetachNode(index.Index, this);
-
-			gameObject.Origin.UpdateLocalPositionByWorldPosition();
-
-			this.EnqueuePositionChanged(index.Index, ref gameObject);
-		}
-
-		public void AttachObject(GameObjectReference child,GameObjectReference parent)
-		{
-			if (child.IsNil || parent.IsNil)
-				return;
-			this.AttachObject(child, ref this.Objects[child.Index], parent, ref this.Objects[parent.Index]);
-		}
-
-		private void AttachObject(GameObjectReference child, ref GameObject childObject, GameObjectReference parent, ref GameObject parentObject)
-		{
-			if (child.Uid != childObject.Uid)
-				return;
-			if (parent.Uid != parentObject.Uid)
-				return;
-
-			// TODO: update world position by don't notify yet
-			if (childObject.IsMoved)
-				this.UpdateWorldPositionAndNotifyComponents(ref childObject);
-
-			if (childObject.Parent != 0)
-				childObject.DetachNode(child.Index, this);
-
-			// TODO: update world position by don't notify yet
-			if (parentObject.IsMoved)
-				this.UpdateWorldPositionAndNotifyComponents(ref parentObject);
-
-			childObject.AttachNodeTail(child.Index, parent.Index, ref parentObject, this);
-
-			childObject.Origin.UpdateLocalPosition(parentObject.Origin);
-
-			this.EnqueuePositionChanged(child.Index, ref childObject);
-		}
 
 		#endregion
 
@@ -342,6 +340,51 @@ namespace Toe.Core
 
 			slot.GameComponent.HandleMessage(msg);
 			return msg.IsHandled;
+		}
+
+		private static void SendPositionChanged(ref GameObject gameObject, ref GameComponentSlot gameComponentSlot)
+		{
+			if (gameComponentSlot.Component != 0)
+			{
+				gameComponentSlot.GameComponent.OnPositionChanged(ref gameObject.Origin);
+			}
+		}
+
+		private void AttachObject(
+			GameObjectReference child, ref GameObject childObject, GameObjectReference parent, ref GameObject parentObject)
+		{
+			if (child.Uid != childObject.Uid)
+			{
+				return;
+			}
+
+			if (parent.Uid != parentObject.Uid)
+			{
+				return;
+			}
+
+			// TODO: update world position by don't notify yet
+			if (childObject.IsMoved)
+			{
+				this.UpdateWorldPositionAndNotifyComponents(ref childObject);
+			}
+
+			if (childObject.Parent != 0)
+			{
+				childObject.DetachNode(child.Index, this);
+			}
+
+			// TODO: update world position by don't notify yet
+			if (parentObject.IsMoved)
+			{
+				this.UpdateWorldPositionAndNotifyComponents(ref parentObject);
+			}
+
+			childObject.AttachNodeTail(child.Index, parent.Index, ref parentObject, this);
+
+			childObject.Origin.UpdateLocalPosition(parentObject.Origin);
+
+			this.EnqueuePositionChanged(child.Index, ref childObject);
 		}
 
 		private void BroadcastGlobalMessage(MessageArgs msg)
@@ -524,6 +567,28 @@ namespace Toe.Core
 			}
 		}
 
+		private void DetachObject(GameObjectReference index, ref GameObject gameObject)
+		{
+			if (index.Uid != gameObject.Uid)
+			{
+				return;
+			}
+
+			if (gameObject.Parent == 0)
+			{
+				return;
+			}
+
+			// TODO: update world position by don't notify yet
+			this.UpdateWorldPositionAndNotifyComponents(ref gameObject);
+
+			gameObject.DetachNode(index.Index, this);
+
+			gameObject.Origin.UpdateLocalPositionByWorldPosition();
+
+			this.EnqueuePositionChanged(index.Index, ref gameObject);
+		}
+
 		private void DisposeComponents()
 		{
 			while (this.componentsTrashQueue.Count > 0)
@@ -561,7 +626,7 @@ namespace Toe.Core
 		private void InitGameObject(int current, ref GameObject gameObject)
 		{
 			gameObject.AttachTail(current, ref this.firstAvailable, ref this.lastAvailable, this);
-			++numOfAvailable;
+			++this.numOfAvailable;
 			gameObject.Init();
 		}
 
@@ -573,7 +638,7 @@ namespace Toe.Core
 		private void MakeAvailableFromGarbage(int current, ref GameObject gameObject)
 		{
 			gameObject.IsAvailable = true;
-			++numOfAvailable;
+			++this.numOfAvailable;
 			gameObject.Detach(current, ref this.firstGarbage, ref this.lastGarbage, this);
 			gameObject.AttachTail(current, ref this.firstAvailable, ref this.lastAvailable, this);
 		}
@@ -590,7 +655,7 @@ namespace Toe.Core
 				gameObject.IsMoved = false;
 				gameObject.DetachFromMoved(current, ref this.firstMovedObject, ref this.lastMovedObject, this);
 			}
-			
+
 			gameObject.IsGarbage = true;
 			gameObject.Detach(current, ref this.firstOccupied, ref this.lastOccupied, this);
 			gameObject.AttachTail(current, ref this.firstGarbage, ref this.lastGarbage, this);
@@ -603,7 +668,7 @@ namespace Toe.Core
 
 		private void MakeOccupiedFromAvailable(int current, ref GameObject gameObject)
 		{
-			--numOfAvailable;
+			--this.numOfAvailable;
 			gameObject.IsOccupied = true;
 			gameObject.Detach(current, ref this.firstAvailable, ref this.lastAvailable, this);
 			gameObject.AttachTail(current, ref this.firstOccupied, ref this.lastOccupied, this);
@@ -742,24 +807,6 @@ namespace Toe.Core
 			return false;
 		}
 
-		private static void SendPositionChanged(ref GameObject gameObject, ref GameComponentSlot gameComponentSlot)
-		{
-			if (gameComponentSlot.Component != 0)
-			{
-				gameComponentSlot.GameComponent.OnPositionChanged(ref gameObject.Origin);
-			}
-		}
-
-		private void UpdateWorldPositionAndNotifyComponents(ref GameObject gameObject)
-		{
-			this.UpdateWorldPosition(ref gameObject);
-
-			for (int i = 0; i < gameObject.Slots.Length; i++)
-			{
-				SendPositionChanged(ref gameObject, ref gameObject.Slots[0]);
-			}
-		}
-
 		private void UpdateWorldPosition(ref GameObject gameObject)
 		{
 			if (gameObject.Parent != 0)
@@ -773,14 +820,16 @@ namespace Toe.Core
 			}
 		}
 
-		#endregion
-
-		public int NumOfAvailable
+		private void UpdateWorldPositionAndNotifyComponents(ref GameObject gameObject)
 		{
-			get
+			this.UpdateWorldPosition(ref gameObject);
+
+			for (int i = 0; i < gameObject.Slots.Length; i++)
 			{
-				return numOfAvailable;
+				SendPositionChanged(ref gameObject, ref gameObject.Slots[0]);
 			}
 		}
+
+		#endregion
 	}
 }

@@ -19,12 +19,14 @@ namespace Toe.Marmalade.ResManager
 		/// </summary>
 		private readonly ClassRegistry classRegistry;
 
+		private readonly List<string> dataFolders = new List<string>();
+
+		private readonly List<CIwResGroup> groups = new List<CIwResGroup>();
+
 		/// <summary>
 		/// True if objest is already disposed.
 		/// </summary>
 		private bool isDisposed;
-
-		List<CIwResGroup> groups = new List<CIwResGroup>();
 
 		#endregion
 
@@ -50,76 +52,38 @@ namespace Toe.Marmalade.ResManager
 			this.Dispose(false);
 		}
 
-		public CIwManaged Resolve(uint type, uint hash)
-		{
-			foreach (var resGroup in groups)
-			{
-				CIwResource res = resGroup.GetResHashed(hash, type);
-				if (res != null)
-				{
-					return res;
-				}
-			}
-			return null;
-		}
-
-		public string ResolveFilePath(string filePath, bool ram)
-		{
-			if (File.Exists(filePath)) return Path.GetFullPath(filePath);
-			return filePath;
-		}
-
-		public string ResolveSourceOrBinaryFilePath(string filePath)
-		{
-			bool originalExists;
-			bool binExists;
-			string binFilePath;
-			filePath = filePath.Replace('/', Path.DirectorySeparatorChar);
-			if (!ResolveFilePath(ref filePath, out binFilePath, out originalExists, out binExists))
-			{
-				foreach (var dataFolder in dataFolders)
-				{
-					var f = (filePath.StartsWith(""+Path.DirectorySeparatorChar)) ? Path.Combine(dataFolder, filePath.Substring(1)) : Path.Combine(dataFolder, filePath);
-					if (ResolveFilePath(ref f, out binFilePath, out originalExists, out binExists))
-					{
-						filePath = f;
-						goto success;
-					}
-				}
-				throw new FileNotFoundException(string.Format("file {0} not found", filePath));
-			}
-			success:
-			if (binExists && !originalExists) return Path.GetFullPath(binFilePath);
-			if (originalExists && !binExists) return Path.GetFullPath(filePath);
-			var timeBin = File.GetLastWriteTime(binFilePath);
-			var timeOriginal = File.GetLastWriteTime(filePath);
-			if (timeBin < timeOriginal) return Path.GetFullPath(filePath);
-			return Path.GetFullPath(binFilePath);
-		}
-
-		private static bool ResolveFilePath(ref string filePath, out string binFilePath, out bool originalExists, out bool binExists)
-		{
-			if (filePath.EndsWith(".bin", StringComparison.InvariantCultureIgnoreCase))
-			{
-				binFilePath = filePath;
-				filePath = filePath.Substring(0, filePath.Length - 4);
-			}
-			else
-			{
-				binFilePath = filePath + ".bin";
-			}
-			binExists = File.Exists(binFilePath);
-			originalExists = File.Exists(filePath);
-			if (!binExists && !originalExists)
-			{
-				return false;
-			}
-			return true;
-		}
-
 		#endregion
 
 		#region Public Methods and Operators
+
+		/// <summary>
+		/// The add data path.
+		/// </summary>
+		/// <param name="folder">
+		/// The folder.
+		/// </param>
+		/// <exception cref="DirectoryNotFoundException">
+		/// </exception>
+		public void AddDataPath(string folder)
+		{
+			if (Directory.Exists(folder))
+			{
+				this.dataFolders.Add(Path.GetFullPath(folder));
+				return;
+			}
+
+			foreach (var dataFolder in this.dataFolders)
+			{
+				var f = Path.Combine(dataFolder, folder);
+				if (Directory.Exists(folder))
+				{
+					this.dataFolders.Add(Path.GetFullPath(folder));
+					return;
+				}
+			}
+
+			throw new DirectoryNotFoundException(string.Format("Directory {0} not found", folder));
+		}
 
 		/// <summary>
 		/// Destroys a group and all its resources. 
@@ -128,7 +92,7 @@ namespace Toe.Marmalade.ResManager
 		/// </param>
 		public void DestroyGroup(CIwResGroup group)
 		{
-			groups.Remove(group);
+			this.groups.Remove(group);
 			group.Dispose();
 		}
 
@@ -165,7 +129,10 @@ namespace Toe.Marmalade.ResManager
 		/// </returns>
 		public CIwResGroup LoadGroup(string groupPath, bool allowNonExist)
 		{
-			if (allowNonExist && !File.Exists(groupPath)) return null;
+			if (allowNonExist && !File.Exists(groupPath))
+			{
+				return null;
+			}
 
 			var gr = new CIwResGroup(this);
 
@@ -175,10 +142,10 @@ namespace Toe.Marmalade.ResManager
 			{
 				var file = this.ResolveSourceOrBinaryFilePath(groupPath);
 				Debug.WriteLine(string.Format("Loading {0}", file));
-				groups.Add(gr);
-				//Directory.SetCurrentDirectory(Path.GetDirectoryName(file));
+				this.groups.Add(gr);
 
-				if (file.EndsWith(".bin",StringComparison.InvariantCultureIgnoreCase))
+				// Directory.SetCurrentDirectory(Path.GetDirectoryName(file));
+				if (file.EndsWith(".bin", StringComparison.InvariantCultureIgnoreCase))
 				{
 					using (var s = IwSerialise.Open(file, true, this.classRegistry, this))
 					{
@@ -189,8 +156,7 @@ namespace Toe.Marmalade.ResManager
 				{
 					throw new NotImplementedException();
 				}
-
-			} 
+			}
 			finally
 			{
 				Directory.SetCurrentDirectory(originalDir);
@@ -198,8 +164,6 @@ namespace Toe.Marmalade.ResManager
 
 			return gr;
 		}
-
-		
 
 		/// <summary>
 		/// Loads a resource group from a memory buffer. 
@@ -220,6 +184,108 @@ namespace Toe.Marmalade.ResManager
 			}
 
 			return null;
+		}
+
+		/// <summary>
+		/// The resolve.
+		/// </summary>
+		/// <param name="type">
+		/// The type.
+		/// </param>
+		/// <param name="hash">
+		/// The hash.
+		/// </param>
+		/// <returns>
+		/// </returns>
+		public CIwManaged Resolve(uint type, uint hash)
+		{
+			foreach (var resGroup in this.groups)
+			{
+				CIwResource res = resGroup.GetResHashed(hash, type);
+				if (res != null)
+				{
+					return res;
+				}
+			}
+
+			return null;
+		}
+
+		/// <summary>
+		/// The resolve file path.
+		/// </summary>
+		/// <param name="filePath">
+		/// The file path.
+		/// </param>
+		/// <param name="ram">
+		/// The ram.
+		/// </param>
+		/// <returns>
+		/// The resolve file path.
+		/// </returns>
+		public string ResolveFilePath(string filePath, bool ram)
+		{
+			if (File.Exists(filePath))
+			{
+				return Path.GetFullPath(filePath);
+			}
+
+			return filePath;
+		}
+
+		/// <summary>
+		/// The resolve source or binary file path.
+		/// </summary>
+		/// <param name="filePath">
+		/// The file path.
+		/// </param>
+		/// <returns>
+		/// The resolve source or binary file path.
+		/// </returns>
+		/// <exception cref="FileNotFoundException">
+		/// </exception>
+		public string ResolveSourceOrBinaryFilePath(string filePath)
+		{
+			bool originalExists;
+			bool binExists;
+			string binFilePath;
+			filePath = filePath.Replace('/', Path.DirectorySeparatorChar);
+			if (!ResolveFilePath(ref filePath, out binFilePath, out originalExists, out binExists))
+			{
+				foreach (var dataFolder in this.dataFolders)
+				{
+					var f = filePath.StartsWith(string.Empty + Path.DirectorySeparatorChar)
+					        	? Path.Combine(dataFolder, filePath.Substring(1))
+					        	: Path.Combine(dataFolder, filePath);
+					if (ResolveFilePath(ref f, out binFilePath, out originalExists, out binExists))
+					{
+						filePath = f;
+						goto success;
+					}
+				}
+
+				throw new FileNotFoundException(string.Format("file {0} not found", filePath));
+			}
+
+			success:
+			if (binExists && !originalExists)
+			{
+				return Path.GetFullPath(binFilePath);
+			}
+
+			if (originalExists && !binExists)
+			{
+				return Path.GetFullPath(filePath);
+			}
+
+			var timeBin = File.GetLastWriteTime(binFilePath);
+			var timeOriginal = File.GetLastWriteTime(filePath);
+			if (timeBin < timeOriginal)
+			{
+				return Path.GetFullPath(filePath);
+			}
+
+			return Path.GetFullPath(binFilePath);
 		}
 
 		#endregion
@@ -269,27 +335,29 @@ namespace Toe.Marmalade.ResManager
 		{
 		}
 
-		#endregion
-
-		public void AddDataPath(string folder)
+		private static bool ResolveFilePath(
+			ref string filePath, out string binFilePath, out bool originalExists, out bool binExists)
 		{
-			if (Directory.Exists(folder))
+			if (filePath.EndsWith(".bin", StringComparison.InvariantCultureIgnoreCase))
 			{
-				dataFolders.Add(Path.GetFullPath(folder));
-				return;
+				binFilePath = filePath;
+				filePath = filePath.Substring(0, filePath.Length - 4);
 			}
-			foreach (var dataFolder in dataFolders)
+			else
 			{
-				var f = Path.Combine(dataFolder, folder);
-				if (Directory.Exists(folder))
-				{
-					dataFolders.Add(Path.GetFullPath(folder));
-					return;
-				}
+				binFilePath = filePath + ".bin";
 			}
-			throw new DirectoryNotFoundException(string.Format("Directory {0} not found", folder));
+
+			binExists = File.Exists(binFilePath);
+			originalExists = File.Exists(filePath);
+			if (!binExists && !originalExists)
+			{
+				return false;
+			}
+
+			return true;
 		}
 
-		private List<string> dataFolders = new List<string>();
+		#endregion
 	}
 }

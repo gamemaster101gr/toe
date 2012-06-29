@@ -1,6 +1,9 @@
 namespace Toe.Core.Messages
 {
-	public class DestroyObject: MessageArgs
+	/// <summary>
+	/// The destroy object.
+	/// </summary>
+	public class DestroyObject : MessageArgs
 	{
 	}
 }

@@ -1,4 +1,9 @@
 namespace Toe.Marmalade.Util
 {
-	public class CIwManagedRefCount { }
+	/// <summary>
+	/// The c iw managed ref count.
+	/// </summary>
+	public class CIwManagedRefCount
+	{
+	}
 }

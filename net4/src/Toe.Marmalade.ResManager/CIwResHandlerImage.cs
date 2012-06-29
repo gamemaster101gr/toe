@@ -1,7 +1,12 @@
 ﻿namespace Toe.Marmalade.ResManager
 {
+	/// <summary>
+	/// The c iw res handler image.
+	/// </summary>
 	public class CIwResHandlerImage
 	{
+		#region Constants and Fields
+
 		private bool m_AllowLowQualityCompression;
 
 		private bool m_CompressForDiskSpace;
@@ -28,5 +33,6 @@
 
 		private bool m_UploadOnLoad;
 
+		#endregion
 	}
 }

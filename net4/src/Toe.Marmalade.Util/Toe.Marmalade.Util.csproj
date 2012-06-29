@@ -71,6 +71,10 @@
       <Project>{89231B56-490E-4AFE-B765-E82A7C9A4FF2}</Project>
       <Name>Toe.Marmalade</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Toe.Utils.Imaging\Toe.Utils.Imaging.csproj">
+      <Project>{53A391B1-DF61-4B6F-A657-8415B9A739D7}</Project>
+      <Name>Toe.Utils.Imaging</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

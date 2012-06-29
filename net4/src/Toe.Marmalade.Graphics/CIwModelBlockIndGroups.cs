@@ -1,53 +1,117 @@
-using System;
-using System.Diagnostics;
-using System.Text;
+using Toe.Marmalade.Util;
 
 namespace Toe.Marmalade.Graphics
 {
-	public class CIwModelBlockIndGroups: CIwModelBlock
+	/// <summary>
+	/// The c iw model block ind groups.
+	/// </summary>
+	public class CIwModelBlockIndGroups : CIwModelBlock
 	{
-		sbyte VertIDOfs;
-		sbyte NormIDOfs;
-		sbyte ColIDOfs;
-		sbyte UV0IDOfs;
-		sbyte TupleSize;
+		#region Constants and Fields
 
+		/// <summary>
+		/// The tuples.
+		/// </summary>
 		public ushort[] Tuples;
 
-		public ushort GetVert(ushort index)
-		{
-			return Tuples[index * TupleSize + VertIDOfs];
-		}
+		private sbyte ColIDOfs;
+
+		private sbyte NormIDOfs;
+
+		private sbyte TupleSize;
+
+		private sbyte UV0IDOfs;
+
+		private sbyte VertIDOfs;
+
+		#endregion
+
+		#region Public Properties
+
+		/// <summary>
+		/// Gets a value indicating whether HasColors.
+		/// </summary>
 		public bool HasColors
 		{
 			get
 			{
-				return ColIDOfs >= 0;
+				return this.ColIDOfs >= 0;
 			}
 		}
+
+		#endregion
+
+		#region Public Methods and Operators
+
+		/// <summary>
+		/// The get color.
+		/// </summary>
+		/// <param name="index">
+		/// The index.
+		/// </param>
+		/// <returns>
+		/// The get color.
+		/// </returns>
 		public ushort GetColor(ushort index)
 		{
-			return Tuples[index * TupleSize + ColIDOfs];
+			return this.Tuples[index * this.TupleSize + this.ColIDOfs];
 		}
 
-		public override void Serialise(Util.IwSerialise serialise)
+		/// <summary>
+		/// The get vert.
+		/// </summary>
+		/// <param name="index">
+		/// The index.
+		/// </param>
+		/// <returns>
+		/// The get vert.
+		/// </returns>
+		public ushort GetVert(ushort index)
+		{
+			return this.Tuples[index * this.TupleSize + this.VertIDOfs];
+		}
+
+		/// <summary>
+		/// The serialise.
+		/// </summary>
+		/// <param name="serialise">
+		/// The serialise.
+		/// </param>
+		public override void Serialise(IwSerialise serialise)
 		{
 			base.Serialise(serialise);
 			serialise.Serialise(ref this.VertIDOfs);
 			serialise.Serialise(ref this.NormIDOfs);
 			serialise.Serialise(ref this.ColIDOfs);
 			serialise.Serialise(ref this.UV0IDOfs);
-			TupleSize = 0;
-			if (TupleSize < VertIDOfs) TupleSize = VertIDOfs;
-			if (TupleSize < NormIDOfs) TupleSize = NormIDOfs;
-			if (TupleSize < ColIDOfs) TupleSize = ColIDOfs;
-			if (TupleSize < UV0IDOfs) TupleSize = UV0IDOfs;
+			this.TupleSize = 0;
+			if (this.TupleSize < this.VertIDOfs)
+			{
+				this.TupleSize = this.VertIDOfs;
+			}
+
+			if (this.TupleSize < this.NormIDOfs)
+			{
+				this.TupleSize = this.NormIDOfs;
+			}
+
+			if (this.TupleSize < this.ColIDOfs)
+			{
+				this.TupleSize = this.ColIDOfs;
+			}
+
+			if (this.TupleSize < this.UV0IDOfs)
+			{
+				this.TupleSize = this.UV0IDOfs;
+			}
+
 			if (serialise.IsReading())
 			{
-				++TupleSize;
-				Tuples = new ushort[TupleSize * this.numItems];
+				++this.TupleSize;
+				this.Tuples = new ushort[this.TupleSize * this.numItems];
 			}
-			serialise.Serialise(ref Tuples);
+
+			serialise.Serialise(ref this.Tuples);
 
 			////var buf = new byte[Math.Min(256, serialise.Length-serialise.Position)];
 			////serialise.Serialise(ref buf);
@@ -70,6 +134,9 @@ namespace Toe.Marmalade.Graphics
 			////Debug.WriteLine(sb.ToString());
 			////throw new NotImplementedException();
 		}
+
+		#endregion
+
 		////uint16*     m_Tuples;       // Ptr to index groups (vertID or not present, normID or not present, colID or not present)
 		////int8        m_VertIDOfs;    // Position of vertID within above tuples, or -1 if not present
 		////int8        m_NormIDOfs;    // Position of normID within above tuples, or -1 if not present
@@ -77,6 +144,5 @@ namespace Toe.Marmalade.Graphics
 		////int8        m_UV0IDOfs;     // Position of uvID within above tuples, or -1 if not present
 		////uint8       m_TupleSize;    // 0, 1 or 2 (number of uint16 entries in tuple)
 		////uint8       m_pad[3];
-
 	}
 }

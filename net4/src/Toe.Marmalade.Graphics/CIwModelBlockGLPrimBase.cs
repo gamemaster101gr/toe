@@ -1,6 +1,5 @@
 using OpenTK.Graphics.OpenGL;
 
-using Toe.Marmalade.Gx;
 using Toe.Marmalade.Util;
 
 namespace Toe.Marmalade.Graphics
@@ -17,6 +16,9 @@ namespace Toe.Marmalade.Graphics
 		/// </summary>
 		protected ushort[] inds;
 
+		/// <summary>
+		/// The material id.
+		/// </summary>
 		protected uint materialId;
 
 		private ushort streamIdBegin;
@@ -55,15 +57,18 @@ namespace Toe.Marmalade.Graphics
 					{
 						GL.Color4(colors.Colors[index]);
 					}
+
 					if (normals != null)
 					{
 						GL.Normal3(normals.Normal[index]);
 					}
+
 					if (uvs != null)
 					{
 						GL.TexCoord2(uvs.UVs[index]);
-						GL.MultiTexCoord2(TextureUnit.Texture0,  ref uvs.UVs[index]);
+						GL.MultiTexCoord2(TextureUnit.Texture0, ref uvs.UVs[index]);
 					}
+
 					GL.Vertex3(verts.Verts[index]);
 				}
 			}

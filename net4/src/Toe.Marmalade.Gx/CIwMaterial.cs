@@ -14,6 +14,46 @@ namespace Toe.Marmalade.Gx
 		#region Constants and Fields
 
 		/// <summary>
+		/// The alph a_ add.
+		/// </summary>
+		public const uint AlphaAdd = 2;
+
+		/// <summary>
+		/// The alph a_ blend.
+		/// </summary>
+		public const uint AlphaBlend = 4;
+
+		/// <summary>
+		/// The alph a_ default.
+		/// </summary>
+		public const uint AlphaDefault = 5;
+
+		/// <summary>
+		/// The alph a_ half.
+		/// </summary>
+		public const uint AlphaHalf = 1;
+
+		/// <summary>
+		/// The alph a_ mod e_ mask.
+		/// </summary>
+		public const uint AlphaModeMask = 0x00070000;
+
+		/// <summary>
+		/// The alph a_ mod e_ shift.
+		/// </summary>
+		public const int AlphaModeShift = 16;
+
+		/// <summary>
+		/// The alph a_ none.
+		/// </summary>
+		public const uint AlphaNone = 0;
+
+		/// <summary>
+		/// The alph a_ sub.
+		/// </summary>
+		public const uint AlphaSub = 3;
+
+		/// <summary>
 		/// The alphatest mode is always.
 		/// </summary>
 		public const uint AlphatestAlways = 8;
@@ -69,46 +109,6 @@ namespace Toe.Marmalade.Gx
 		public const uint AlphatestNotequal = 6;
 
 		/// <summary>
-		/// The alph a_ add.
-		/// </summary>
-		public const uint AlphaAdd = 2;
-
-		/// <summary>
-		/// The alph a_ blend.
-		/// </summary>
-		public const uint AlphaBlend = 4;
-
-		/// <summary>
-		/// The alph a_ default.
-		/// </summary>
-		public const uint AlphaDefault = 5;
-
-		/// <summary>
-		/// The alph a_ half.
-		/// </summary>
-		public const uint AlphaHalf = 1;
-
-		/// <summary>
-		/// The alph a_ mod e_ mask.
-		/// </summary>
-		public const uint AlphaModeMask = 0x00070000;
-
-		/// <summary>
-		/// The alph a_ mod e_ shift.
-		/// </summary>
-		public const int AlphaModeShift = 16;
-
-		/// <summary>
-		/// The alph a_ none.
-		/// </summary>
-		public const uint AlphaNone = 0;
-
-		/// <summary>
-		/// The alph a_ sub.
-		/// </summary>
-		public const uint AlphaSub = 3;
-
-		/// <summary>
 		/// The atla s_ materia l_ f.
 		/// </summary>
 		public const uint AtlasMaterialF = 1 << 9;
@@ -159,6 +159,11 @@ namespace Toe.Marmalade.Gx
 		public const uint BlendReplace = 3;
 
 		/// <summary>
+		/// The cul l_ front.
+		/// </summary>
+		public const uint CULL_FRONT = 0;
+
+		/// <summary>
 		/// The clam p_ u v_ f.
 		/// </summary>
 		public const uint ClampUvF = 1 << 8;
@@ -169,19 +174,14 @@ namespace Toe.Marmalade.Gx
 		public const uint CullBack = 1;
 
 		/// <summary>
-		/// The cul l_ front.
+		/// The cull front f.
 		/// </summary>
-		public const uint CULL_FRONT = 0;
+		public const uint CullFrontF = 1 << 4;
 
 		/// <summary>
 		/// The cul l_ none.
 		/// </summary>
 		public const uint CullNone = 2;
-
-		/// <summary>
-		/// The cull front f.
-		/// </summary>
-		public const uint CullFrontF = 1 << 4;
 
 		/// <summary>
 		/// The dept h_ writ e_ disabled.
@@ -613,6 +613,7 @@ namespace Toe.Marmalade.Gx
 					GL.AlphaFunc(AlphaFunction.Notequal, this.alphaTestValue / 255.0f);
 					break;
 			}
+
 			if (this.IsFlat)
 			{
 				GL.ShadeModel(ShadingModel.Flat);
@@ -621,6 +622,7 @@ namespace Toe.Marmalade.Gx
 			{
 				GL.ShadeModel(ShadingModel.Smooth);
 			}
+
 			if (this.texture1 != null)
 			{
 				if (this.texture1 != null)
@@ -717,8 +719,6 @@ namespace Toe.Marmalade.Gx
 				serialise.ManagedHash("CIwTexture".ToeHash(), ref t);
 				this.texture0 = (CIwTexture)t;
 			}
-
-	
 
 			if (!someFlag)
 			{

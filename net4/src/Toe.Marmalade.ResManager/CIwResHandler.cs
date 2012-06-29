@@ -1,4 +1,9 @@
 ﻿namespace Toe.Marmalade.ResManager
 {
-	public class CIwResHandler{}
+	/// <summary>
+	/// The c iw res handler.
+	/// </summary>
+	public class CIwResHandler
+	{
+	}
 }

@@ -13,12 +13,16 @@ namespace Toe.Marmalade.Graphics
 	{
 		#region Constants and Fields
 
+		private ushort uniqueValues;
+
 		/// <summary>
 		/// The verts.
 		/// </summary>
 		private Vector3[] verts;
 
-		private ushort uniqueValues;
+		#endregion
+
+		#region Public Properties
 
 		/// <summary>
 		/// The verts.

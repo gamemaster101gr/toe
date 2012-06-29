@@ -1,11 +1,25 @@
+using Toe.Marmalade.Util;
+
 namespace Toe.Marmalade.Graphics
 {
-	public class CIwModelBlockGLUVs2:CIwModelBlockGLUVs
+	/// <summary>
+	/// The c iw model block glu vs 2.
+	/// </summary>
+	public class CIwModelBlockGLUVs2 : CIwModelBlockGLUVs
 	{
-		public override void Serialise(Util.IwSerialise serialise)
+		#region Public Methods and Operators
+
+		/// <summary>
+		/// The serialise.
+		/// </summary>
+		/// <param name="serialise">
+		/// The serialise.
+		/// </param>
+		public override void Serialise(IwSerialise serialise)
 		{
 			base.Serialise(serialise);
 		}
 
+		#endregion
 	}
 }

@@ -1,4 +1,9 @@
 ﻿namespace Toe.Marmalade.ResManager
 {
-	public class CIwResTemplateImage{}
+	/// <summary>
+	/// The c iw res template image.
+	/// </summary>
+	public class CIwResTemplateImage
+	{
+	}
 }

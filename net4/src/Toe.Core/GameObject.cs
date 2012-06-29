@@ -147,6 +147,37 @@ namespace Toe.Core
 		#region Public Methods and Operators
 
 		/// <summary>
+		/// The attach node tail.
+		/// </summary>
+		/// <param name="index">
+		/// The index.
+		/// </param>
+		/// <param name="parent">
+		/// The parent.
+		/// </param>
+		/// <param name="parentObject">
+		/// The parent object.
+		/// </param>
+		/// <param name="world">
+		/// The world.
+		/// </param>
+		public void AttachNodeTail(int index, int parent, ref GameObject parentObject, GameWorld world)
+		{
+			this.Parent = parent;
+			this.Prev = parentObject.LastChild;
+			this.Next = 0;
+			parentObject.LastChild = index;
+			if (parentObject.FirstChild == 0)
+			{
+				parentObject.FirstChild = index;
+			}
+			else
+			{
+				world.Objects[this.Prev].Next = index;
+			}
+		}
+
+		/// <summary>
 		/// The detach from moved.
 		/// </summary>
 		/// <param name="index">
@@ -182,6 +213,25 @@ namespace Toe.Core
 			{
 				world.Objects[this.MovedNext].MovedPrev = this.MovedPrev;
 			}
+		}
+
+		/// <summary>
+		/// The detach node.
+		/// </summary>
+		/// <param name="index">
+		/// The index.
+		/// </param>
+		/// <param name="gameWorld">
+		/// The game world.
+		/// </param>
+		public void DetachNode(int index, GameWorld gameWorld)
+		{
+			if (this.Parent == 0)
+			{
+				return;
+			}
+
+			this.DetachNode(index, gameWorld, ref gameWorld.Objects[this.Parent]);
 		}
 
 		#endregion
@@ -272,53 +322,33 @@ namespace Toe.Core
 			this.Slots = new GameComponentSlot[NumSlots];
 		}
 
-		#endregion
-
-		public void DetachNode(int index, GameWorld gameWorld)
-		{
-			if (Parent == 0)
-				return;
-
-			this.DetachNode(index, gameWorld, ref gameWorld.Objects[Parent]);
-		}
-
 		private void DetachNode(int index, GameWorld gameWorld, ref GameObject parent)
 		{
 			if (this.Next != 0)
 			{
 				gameWorld.Objects[this.Next].Prev = this.Prev;
 			}
+
 			if (this.Prev != 0)
 			{
 				gameWorld.Objects[this.Prev].Next = this.Next;
 			}
+
 			if (parent.FirstChild == index)
 			{
 				parent.FirstChild = this.Next;
 			}
+
 			if (parent.LastChild == index)
 			{
 				parent.LastChild = this.Prev;
 			}
-			Parent = 0;
-			Next = 0;
-			Prev = 0;
+
+			this.Parent = 0;
+			this.Next = 0;
+			this.Prev = 0;
 		}
 
-		public void AttachNodeTail(int index, int parent, ref GameObject parentObject, GameWorld world)
-		{
-			this.Parent = parent;
-			this.Prev = parentObject.LastChild;
-			this.Next = 0;
-			parentObject.LastChild = index;
-			if (parentObject.FirstChild == 0)
-			{
-				parentObject.FirstChild = index;
-			}
-			else
-			{
-				world.Objects[this.Prev].Next = index;
-			}
-		}
+		#endregion
 	}
 }

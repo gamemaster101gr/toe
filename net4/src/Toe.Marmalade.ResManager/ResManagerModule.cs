@@ -19,7 +19,8 @@ namespace Toe.Marmalade.ResManager
 		/// </param>
 		protected override void Load(ContainerBuilder builder)
 		{
-			builder.RegisterType<IwResManager>().As<IwResManager>().As<IMarmaladeModule>().As<IResourceResolver>().SingleInstance();
+			builder.RegisterType<IwResManager>().As<IwResManager>().As<IMarmaladeModule>().As<IResourceResolver>().SingleInstance
+				();
 			builder.RegisterType<ResScale>();
 			builder.RegisterType<CIwResGroupBuildData>();
 			builder.RegisterType<CIwResList>();

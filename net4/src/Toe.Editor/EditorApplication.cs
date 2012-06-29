@@ -5,8 +5,13 @@ using Toe.Editor.Forms;
 
 namespace Toe.Editor
 {
-	public class EditorApplication: IToeApplication
+	/// <summary>
+	/// The editor application.
+	/// </summary>
+	public class EditorApplication : IToeApplication
 	{
+		#region Public Methods and Operators
+
 		/// <summary>
 		/// Run the application.
 		/// </summary>
@@ -14,5 +19,7 @@ namespace Toe.Editor
 		{
 			Application.Run(new EditorWindow());
 		}
+
+		#endregion
 	}
 }

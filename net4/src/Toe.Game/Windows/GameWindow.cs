@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 using OpenTK;
@@ -17,73 +13,121 @@ using Toe.Marmalade.ResManager;
 
 namespace Toe.Game.Windows
 {
+	/// <summary>
+	/// The game window.
+	/// </summary>
 	public partial class GameWindow : Form
 	{
+		#region Constants and Fields
+
 		private readonly IwResManager resManager;
-		Timer timer = new Timer();
-		private bool isFullScreen = false;
+
+		private readonly Timer timer = new Timer();
+
+		private float angle = (float)Math.PI / 4;
+
+		private CIwResGroup @group;
+
+		private bool isFullScreen;
 
 		/// <summary>
 		/// Is window completely loaded.
 		/// </summary>
-		bool isLoaded = false;
+		private bool isLoaded;
 
-		private CIwResGroup @group;
+		#endregion
 
+		#region Constructors and Destructors
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="GameWindow"/> class.
+		/// </summary>
+		/// <param name="resManager">
+		/// The res manager.
+		/// </param>
 		public GameWindow(IwResManager resManager)
 		{
 			this.resManager = resManager;
-			InitializeComponent();
+			this.InitializeComponent();
 		}
 
-		protected override void OnLoad(EventArgs e)
-		{
-			base.OnLoad(e);
+		#endregion
 
-			isLoaded = true;
-			timer.Interval = 1000/30;
-			timer.Tick += (s, a) => { this.glControl.Invalidate(); };
+		#region Public Properties
 
-			try
-			{
-
-				@group = this.resManager.LoadGroup(@"Z:\MyWork\toe.git\net4\src\Toe.Marmalade.Tests\TestData\data-sw\scalablepipeline\bike.group.bin", false);
-				//@group = this.resManager.LoadGroup(@"Z:\MyWork\toe.git\net4\src\Toe.Marmalade.Tests\TestData\data-gles1\scalablepipeline\bike.group.bin", false);
-			}
-			catch(Exception ex)
-			{
-				Debug.Write(ex.ToString());
-				throw;
-			}
-
-			this.ApplyScreenMode();
-			timer.Start();
-		}
-
-		protected override void OnClosing(CancelEventArgs e)
-		{
-			base.OnClosing(e);
-			timer.Stop();
-			if (@group != null)
-			{
-				this.resManager.DestroyGroup(@group);
-			}
-		}
-
+		/// <summary>
+		/// Gets or sets a value indicating whether FullScreen.
+		/// </summary>
 		public bool FullScreen
 		{
 			get
 			{
 				return this.isFullScreen;
 			}
+
 			set
 			{
 				if (value == this.isFullScreen)
+				{
 					return;
+				}
+
 				this.isFullScreen = value;
 
 				this.ApplyScreenMode();
 			}
+		}
+
+		#endregion
+
+		#region Methods
+
+		/// <summary>
+		/// The on closing.
+		/// </summary>
+		/// <param name="e">
+		/// The e.
+		/// </param>
+		protected override void OnClosing(CancelEventArgs e)
+		{
+			base.OnClosing(e);
+			this.timer.Stop();
+			if (this.@group != null)
+			{
+				this.resManager.DestroyGroup(this.@group);
+			}
+		}
+
+		/// <summary>
+		/// The on load.
+		/// </summary>
+		/// <param name="e">
+		/// The e.
+		/// </param>
+		protected override void OnLoad(EventArgs e)
+		{
+			base.OnLoad(e);
+
+			this.isLoaded = true;
+			this.timer.Interval = 1000 / 30;
+			this.timer.Tick += (s, a) => { this.glControl.Invalidate(); };
+
+			try
+			{
+				this.@group =
+					this.resManager.LoadGroup(
+						@"Z:\MyWork\toe.git\net4\src\Toe.Marmalade.Tests\TestData\data-sw\scalablepipeline\bike.group.bin", false);
+
+				// @group = this.resManager.LoadGroup(@"Z:\MyWork\toe.git\net4\src\Toe.Marmalade.Tests\TestData\data-gles1\scalablepipeline\bike.group.bin", false);
+			}
+			catch (Exception ex)
+			{
+				Debug.Write(ex.ToString());
+				throw;
+			}
+
+			this.ApplyScreenMode();
+			this.timer.Start();
 		}
 
 		private void ApplyScreenMode()
@@ -92,28 +136,32 @@ namespace Toe.Game.Windows
 			{
 				this.FormBorderStyle = FormBorderStyle.None;
 				this.TopMost = true;
-				//DisplayDevice.Primary.ChangeResolution(width, height, 32, 60.0f);
+
+				// DisplayDevice.Primary.ChangeResolution(width, height, 32, 60.0f);
 				this.WindowState = FormWindowState.Maximized;
 			}
 			else
 			{
 				this.FormBorderStyle = FormBorderStyle.Sizable;
 				this.TopMost = false;
-				//DisplayDevice.Primary.ChangeResolution(width, height, 32, 60.0f);
+
+				// DisplayDevice.Primary.ChangeResolution(width, height, 32, 60.0f);
 				this.WindowState = FormWindowState.Normal;
 			}
 		}
 
-		private float angle = (float)Math.PI / 4;
 		private void RenderGameScreen(object sender, PaintEventArgs e)
 		{
-			if (!isLoaded)
+			if (!this.isLoaded)
+			{
 				return;
+			}
+
 			GL.ClearColor(Color.SkyBlue);
 			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-			
-			int w = glControl.Width;
-			int h = glControl.Height;
+
+			int w = this.glControl.Width;
+			int h = this.glControl.Height;
 			GL.MatrixMode(MatrixMode.Projection);
 			GL.LoadIdentity();
 
@@ -127,19 +175,20 @@ namespace Toe.Game.Windows
 
 			GL.MatrixMode(MatrixMode.Modelview);
 			GL.LoadIdentity();
-			angle += (float)Math.PI / 200;
-			Matrix4 m = Matrix4.CreateRotationY(angle);
+			this.angle += (float)Math.PI / 200;
+			Matrix4 m = Matrix4.CreateRotationY(this.angle);
 			GL.LoadMatrix(ref m);
 			S3E.CheckOpenGLStatus();
-			if (@group != null)
+			if (this.@group != null)
 			{
-				var models = @group.GetListNamed("CIwModel");
+				var models = this.@group.GetListNamed("CIwModel");
 				if (models != null)
 				{
 					for (int i = 0; i < models.Size; ++i)
 					{
 						((CIwModel)models[i]).Render();
-						//break;
+
+						// break;
 					}
 				}
 			}
@@ -150,16 +199,20 @@ namespace Toe.Game.Windows
 			////GL.Vertex2(100, 20);
 			////GL.Vertex2(100, 50);
 			////GL.End();
-			/// 
+			// 
 			S3E.CheckOpenGLStatus();
 
-			glControl.SwapBuffers();
+			this.glControl.SwapBuffers();
 		}
 
 		private void ResizeGlControl(object sender, EventArgs e)
 		{
-			if (!isLoaded)
+			if (!this.isLoaded)
+			{
 				return;
+			}
 		}
+
+		#endregion
 	}
 }

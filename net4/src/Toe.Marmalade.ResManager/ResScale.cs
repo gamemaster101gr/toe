@@ -1,4 +1,9 @@
 ﻿namespace Toe.Marmalade.ResManager
 {
-	public class ResScale {}
+	/// <summary>
+	/// The res scale.
+	/// </summary>
+	public class ResScale
+	{
+	}
 }

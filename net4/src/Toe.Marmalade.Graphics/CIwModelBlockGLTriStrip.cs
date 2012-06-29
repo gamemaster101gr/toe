@@ -26,9 +26,11 @@ namespace Toe.Marmalade.Graphics
 		/// </returns>
 		public override uint Render(CIwModel model, uint flags)
 		{
-			CIwMaterial material = model.GetMaterial(materialId);
+			CIwMaterial material = model.GetMaterial(this.materialId);
 			if (material != null)
+			{
 				material.Enable();
+			}
 
 			GL.Begin(BeginMode.TriangleStrip);
 			base.Render(model, flags);
@@ -36,7 +38,9 @@ namespace Toe.Marmalade.Graphics
 			S3E.CheckOpenGLStatus();
 
 			if (material != null)
+			{
 				material.Disable();
+			}
 
 			return 0;
 		}

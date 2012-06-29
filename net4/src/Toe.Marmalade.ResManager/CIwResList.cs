@@ -4,21 +4,84 @@ using Toe.Marmalade.Util;
 
 namespace Toe.Marmalade.ResManager
 {
-	public class CIwResList: CIwManaged
+	/// <summary>
+	/// The c iw res list.
+	/// </summary>
+	public class CIwResList : CIwManaged
 	{
+		#region Constants and Fields
+
 		/// <summary>
 		/// All the resources in the list.
 		/// </summary>
-		CIwManagedList resources = new CIwManagedList();
+		private readonly CIwManagedList resources = new CIwManagedList();
 
+		#endregion
+
+		#region Public Properties
+
+		/// <summary>
+		/// Gets Size.
+		/// </summary>
 		public uint Size
 		{
 			get
 			{
-				return resources.Size;
+				return this.resources.Size;
 			}
 		}
 
+		#endregion
+
+		#region Public Indexers
+
+		/// <summary>
+		/// The this.
+		/// </summary>
+		/// <param name="i">
+		/// The i.
+		/// </param>
+		public CIwResource this[int i]
+		{
+			get
+			{
+				return (CIwResource)this.resources[i];
+			}
+		}
+
+		#endregion
+
+		#region Public Methods and Operators
+
+		/// <summary>
+		/// The get res hashed.
+		/// </summary>
+		/// <param name="name">
+		/// The name.
+		/// </param>
+		/// <returns>
+		/// </returns>
+		public CIwResource GetResHashed(uint name)
+		{
+			for (int i = 0; i < this.resources.Size; ++i)
+			{
+				if (this.resources[i].Hash == name)
+				{
+					return (CIwResource)this.resources[i];
+				}
+			}
+
+			return null;
+		}
+
+		/// <summary>
+		/// The serialise.
+		/// </summary>
+		/// <param name="serialise">
+		/// The serialise.
+		/// </param>
+		/// <exception cref="Exception">
+		/// </exception>
 		public override void Serialise(IwSerialise serialise)
 		{
 			base.Serialise(serialise);
@@ -34,57 +97,74 @@ namespace Toe.Marmalade.ResManager
 			while (resCount > 0)
 			{
 				var pos = serialise.Position;
-				UInt32 length = 0;
+				uint length = 0;
 				serialise.UInt32(ref length);
 
 				CIwManaged res = null;
-				serialise.ManagedObject(Hash, ref res);
-				resources.Add((CIwResource)res,false);
+				serialise.ManagedObject(this.Hash, ref res);
+				this.resources.Add((CIwResource)res, false);
 				--resCount;
 
 				if (serialise.Position != pos + length)
 				{
-					throw new Exception(string.Format("Parse of {0} failed: wrong position by {1} bytes", res.GetType().Name, serialise.Position - (pos + length)));
+					throw new Exception(
+						string.Format(
+							"Parse of {0} failed: wrong position by {1} bytes", res.GetType().Name, serialise.Position - (pos + length)));
 					serialise.Position = pos + length;
 				}
 			}
 		}
 
-		public CIwResource GetResHashed(uint name)
-		{
-			for (int i = 0; i < resources.Size; ++i)
-				if (resources[i].Hash == name)
-					return (CIwResource)resources[i];
-			return null;
-		}
+		#endregion
 
-		public CIwResource this[int i]
-		{
-			get
-			{
-				return (CIwResource)resources[i];
-			}
-		}
+		#region Methods
 
+		/// <summary>
+		/// The dispose.
+		/// </summary>
+		/// <param name="disposing">
+		/// The disposing.
+		/// </param>
 		protected override void Dispose(bool disposing)
 		{
 			base.Dispose(disposing);
-			while (resources.Size > 0)
+			while (this.resources.Size > 0)
 			{
-				var r = resources.PopBack();
+				var r = this.resources.PopBack();
 				r.Dispose();
 			}
 		}
+
+		#endregion
 	}
+
+	/// <summary>
+	/// The c iw group directory entry.
+	/// </summary>
 	public class CIwGroupDirectoryEntry
 	{
-		void Serialise(IwSerialise serialise)
+		#region Constants and Fields
+
+		/// <summary>
+		/// The hash.
+		/// </summary>
+		public uint Hash;
+
+		/// <summary>
+		/// The offset.
+		/// </summary>
+		public uint Offset;
+
+		#endregion
+
+		#region Methods
+
+		private void Serialise(IwSerialise serialise)
 		{
-			serialise.UInt32(ref Hash);
-			serialise.UInt32(ref Offset);
+			serialise.UInt32(ref this.Hash);
+			serialise.UInt32(ref this.Offset);
 		}
 
-		public uint Hash;
-		public uint Offset;
+		#endregion
 	}
 }

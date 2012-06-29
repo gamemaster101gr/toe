@@ -293,7 +293,7 @@ namespace Toe.Marmalade.Util
 						throw new Exception(string.Format("Can't find class {0}", s));
 					}
 
-					this.PushObject((CIwManaged)iwClassFactory.Create());
+					this.PushObject(iwClassFactory.Create());
 					this.GetObject(0).ParseOpen(this);
 				}
 				else

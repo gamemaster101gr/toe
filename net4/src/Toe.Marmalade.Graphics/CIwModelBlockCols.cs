@@ -1,12 +1,27 @@
-using System;
 using System.Drawing;
+
+using Toe.Marmalade.Util;
 
 namespace Toe.Marmalade.Graphics
 {
+	/// <summary>
+	/// The c iw model block cols.
+	/// </summary>
 	public class CIwModelBlockCols : CIwModelBlock
 	{
+		#region Constants and Fields
+
+		private Color[] colors;
+
 		private bool serialiseGrayscale;
 
+		#endregion
+
+		#region Public Properties
+
+		/// <summary>
+		/// Gets Colors.
+		/// </summary>
 		public Color[] Colors
 		{
 			get
@@ -15,31 +30,44 @@ namespace Toe.Marmalade.Graphics
 			}
 		}
 
-		public override void Serialise(Util.IwSerialise serialise)
+		#endregion
+
+		#region Public Methods and Operators
+
+		/// <summary>
+		/// The serialise.
+		/// </summary>
+		/// <param name="serialise">
+		/// The serialise.
+		/// </param>
+		public override void Serialise(IwSerialise serialise)
 		{
 			base.Serialise(serialise);
 			serialise.Bool(ref this.serialiseGrayscale);
 			if (this.serialiseGrayscale)
 			{
-				this.colors = new Color[numItems];
-				var buf = new byte[numItems];
+				this.colors = new Color[this.numItems];
+				var buf = new byte[this.numItems];
 				serialise.Serialise(ref buf);
-				for (int i = 0; i < numItems; ++i)
+				for (int i = 0; i < this.numItems; ++i)
 				{
 					this.Colors[i] = Color.FromArgb(255, buf[i], buf[i], buf[i]);
 				}
 			}
 			else
 			{
-				this.colors = new Color[numItems];
-				var buf = new byte[numItems * 4];
+				this.colors = new Color[this.numItems];
+				var buf = new byte[this.numItems * 4];
 				serialise.Serialise(ref buf);
-				for (int i = 0; i < numItems; ++i)
-					this.Colors[i] = Color.FromArgb(buf[i + numItems * 3], buf[i + numItems * 0], buf[i + numItems * 1], buf[i + numItems * 2]);
+				for (int i = 0; i < this.numItems; ++i)
+				{
+					this.Colors[i] = Color.FromArgb(
+						buf[i + this.numItems * 3], buf[i + this.numItems * 0], buf[i + this.numItems * 1], buf[i + this.numItems * 2]);
+				}
 			}
 		}
 
-		private Color[] colors;
+		#endregion
 
 		// CIwColour*      m_Cols;     //!< colour list
 	}

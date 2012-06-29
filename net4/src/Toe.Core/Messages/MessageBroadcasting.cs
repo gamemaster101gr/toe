@@ -5,8 +5,19 @@ namespace Toe.Core.Messages
 	/// </summary>
 	public enum MessageBroadcasting
 	{
-		None,
-		Up,
+		/// <summary>
+		/// The none.
+		/// </summary>
+		None, 
+
+		/// <summary>
+		/// The up.
+		/// </summary>
+		Up, 
+
+		/// <summary>
+		/// The down.
+		/// </summary>
 		Down
 	}
 }

@@ -30,18 +30,24 @@ namespace Toe.Marmalade.Graphics
 		{
 			try
 			{
-				CIwMaterial material = model.GetMaterial(materialId);
+				CIwMaterial material = model.GetMaterial(this.materialId);
 				if (material != null)
+				{
 					material.Enable();
+				}
 
 				S3E.CheckOpenGLStatus();
 				GL.Begin(BeginMode.Triangles);
 				base.Render(model, flags);
 				GL.End();
 				if (material != null)
+				{
 					material.Disable();
+				}
+
 				S3E.CheckOpenGLStatus();
-			} catch(Exception ex)
+			}
+			catch (Exception ex)
 			{
 				throw;
 			}

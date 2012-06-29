@@ -7,6 +7,8 @@ namespace Toe.Marmalade.Util
 	/// </summary>
 	public class UtilModule : Module
 	{
+		#region Methods
+
 		/// <summary>
 		/// Adding registrations to the container.
 		/// </summary>
@@ -22,5 +24,7 @@ namespace Toe.Marmalade.Util
 			builder.RegisterType<CIwResource>();
 			base.Load(builder);
 		}
+
+		#endregion
 	}
 }

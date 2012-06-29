@@ -3,7 +3,6 @@ using Autofac;
 using NUnit.Framework;
 
 using Toe.Marmalade.Anim;
-using Toe.Marmalade.ResManager;
 using Toe.Marmalade.Util;
 
 namespace Toe.Marmalade.Tests.Serialization
@@ -14,18 +13,40 @@ namespace Toe.Marmalade.Tests.Serialization
 	[TestFixture]
 	public class PlaneTypes : BaseTest
 	{
+		#region Public Methods and Operators
+
+		/// <summary>
+		/// The bone.
+		/// </summary>
+		[Test]
+		public void Bone()
+		{
+			var s = IwSerialise.Open("TestData\\managedobject_bone.bin", true, this.container.Resolve<ClassRegistry>(), null);
+			CIwManaged obj = null;
+			s.ManagedObject(ref obj);
+			s.Close();
+			Assert.IsTrue(obj is CIwAnimBone);
+			Assert.AreEqual(obj.Hash, "bonename".ToeHash());
+		}
+
+		/// <summary>
+		/// The bool.
+		/// </summary>
 		[Test]
 		public void Bool()
 		{
 			var s = IwSerialise.Open("TestData\\bool.bin", true, null, null);
 			bool v = false;
 			s.Bool(ref v);
-			Assert.AreEqual(v,false);
+			Assert.AreEqual(v, false);
 			s.Bool(ref v);
 			Assert.AreEqual(v, true);
 			s.Close();
 		}
 
+		/// <summary>
+		/// The int 32.
+		/// </summary>
 		[Test]
 		public void Int32()
 		{
@@ -40,15 +61,6 @@ namespace Toe.Marmalade.Tests.Serialization
 			s.Close();
 		}
 
-		[Test]
-		public void Bone()
-		{
-			var s = IwSerialise.Open("TestData\\managedobject_bone.bin", true, container.Resolve<ClassRegistry>(), null);
-			CIwManaged obj = null;
-			s.ManagedObject(ref obj);
-			s.Close();
-			Assert.IsTrue(obj is CIwAnimBone);
-			Assert.AreEqual(obj.Hash, "bonename".ToeHash());
-		}
+		#endregion
 	}
 }

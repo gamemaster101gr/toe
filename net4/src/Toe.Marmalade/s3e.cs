@@ -10,12 +10,35 @@ namespace Toe.Marmalade
 	/// </summary>
 	public class S3E
 	{
+		#region Constants and Fields
+
+		/// <summary>
+		/// The iw geom one.
+		/// </summary>
+		public const int IwGeomOne = 1 << 12;
+
 		/// <summary>
 		/// Initial hash value.
 		/// </summary>
 		public const uint S3EHashInitial = 5381;
 
-		public const int IwGeomOne = (1 << 12);
+		#endregion
+
+		#region Public Methods and Operators
+
+		/// <summary>
+		/// The check open gl status.
+		/// </summary>
+		/// <exception cref="Exception">
+		/// </exception>
+		public static void CheckOpenGLStatus()
+		{
+			var code = GL.GetError();
+			if (code != ErrorCode.NoError)
+			{
+				throw new Exception(string.Format("OpenGL Error: {0}", code));
+			}
+		}
 
 		/// <summary>
 		/// Case insensetive hash.
@@ -46,7 +69,9 @@ namespace Toe.Marmalade
 		public static uint HashString(string text, uint hash)
 		{
 			if (string.IsNullOrEmpty(text))
+			{
 				return hash;
+			}
 
 			foreach (var c in Encoding.UTF8.GetBytes(text))
 			{
@@ -57,13 +82,6 @@ namespace Toe.Marmalade
 			return hash;
 		}
 
-		public static void CheckOpenGLStatus()
-		{
-			var code = GL.GetError();
-			if (code != ErrorCode.NoError)
-			{
-				throw new Exception(string.Format("OpenGL Error: {0}", code));
-			}
-		}
+		#endregion
 	}
 }

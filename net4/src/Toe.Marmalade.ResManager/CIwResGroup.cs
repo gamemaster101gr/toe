@@ -10,15 +10,6 @@ namespace Toe.Marmalade.ResManager
 	/// </summary>
 	public class CIwResGroup : CIwManaged
 	{
-		private bool isDisposed;
-		~CIwResGroup()
-		{
-			if (!isDisposed)
-			{
-				isDisposed = true;
-				this.Dispose(false);
-			}
-		}
 		#region Constants and Fields
 
 		/// <summary>
@@ -64,6 +55,8 @@ namespace Toe.Marmalade.ResManager
 
 		private uint flags;
 
+		private bool isDisposed;
+
 		#endregion
 
 		#region Constructors and Destructors
@@ -79,9 +72,34 @@ namespace Toe.Marmalade.ResManager
 			this.resManager = resManager;
 		}
 
+		/// <summary>
+		/// Finalizes an instance of the <see cref="CIwResGroup"/> class. 
+		/// </summary>
+		~CIwResGroup()
+		{
+			if (!this.isDisposed)
+			{
+				this.isDisposed = true;
+				this.Dispose(false);
+			}
+		}
+
 		#endregion
 
 		#region Public Methods and Operators
+
+		/// <summary>
+		/// The dispose.
+		/// </summary>
+		public void Dispose()
+		{
+			if (!this.isDisposed)
+			{
+				this.isDisposed = true;
+				this.Dispose(true);
+				GC.SuppressFinalize(this);
+			}
+		}
 
 		/// <summary>
 		/// The get list hashed.
@@ -199,6 +217,24 @@ namespace Toe.Marmalade.ResManager
 			b.Serialise();
 		}
 
+		/// <summary>
+		/// The dispose.
+		/// </summary>
+		/// <param name="disposing">
+		/// The disposing.
+		/// </param>
+		protected virtual void Dispose(bool disposing)
+		{
+			if (this.lists != null)
+			{
+				while (this.lists.Size > 0)
+				{
+					var p = this.lists.PopBack();
+					p.Dispose();
+				}
+			}
+		}
+
 		private void ReadBlock(object sender, BinaryBlockEventArgs e)
 		{
 			switch (e.Hash)
@@ -240,9 +276,9 @@ namespace Toe.Marmalade.ResManager
 					iwSerialise.UInt32(ref value);
 					var f = iwSerialise.ClassRegistry.Get(value);
 				}
+
 				--num;
 			}
-			
 		}
 
 		private void ReadGroupResources(IwSerialise serialise)
@@ -281,27 +317,5 @@ namespace Toe.Marmalade.ResManager
 		}
 
 		#endregion
-
-		public void Dispose()
-		{
-			if (!isDisposed)
-			{
-				isDisposed = true;
-				Dispose(true);
-				GC.SuppressFinalize(this);
-			}
-		}
-
-		protected  virtual void Dispose(bool disposing)
-		{
-			if (this.lists != null)
-			{
-				while (this.lists.Size > 0)
-				{
-					var p = this.lists.PopBack();
-					p.Dispose();
-				}
-			}
-		}
 	}
 }

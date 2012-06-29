@@ -1,19 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 
 namespace Toe.Editor.Controls
 {
+	/// <summary>
+	/// The editor viewports.
+	/// </summary>
 	public partial class EditorViewports : UserControl
 	{
+		#region Constructors and Destructors
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="EditorViewports"/> class.
+		/// </summary>
 		public EditorViewports()
 		{
-			InitializeComponent();
+			this.InitializeComponent();
 		}
+
+		#endregion
 	}
 }

@@ -47,6 +47,7 @@
     <Compile Include="AnimModule.cs" />
     <Compile Include="CIwAnim.cs" />
     <Compile Include="CIwAnimBone.cs" />
+    <Compile Include="CIwAnimKeyFrame.cs" />
     <Compile Include="CIwAnimPlayer.cs" />
     <Compile Include="CIwAnimSkel.cs" />
     <Compile Include="CIwAnimSkin.cs" />
@@ -61,6 +62,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Toe.Marmalade.Graphics\Toe.Marmalade.Graphics.csproj">
+      <Project>{97677725-0026-486D-BC63-A30B512DCDCA}</Project>
+      <Name>Toe.Marmalade.Graphics</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Toe.Marmalade.Util\Toe.Marmalade.Util.csproj">
       <Project>{013C07CD-50DB-4D24-94C3-895599F8219A}</Project>
       <Name>Toe.Marmalade.Util</Name>

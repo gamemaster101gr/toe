@@ -15,10 +15,14 @@ namespace Toe.App
 	/// </summary>
 	public class MainClass
 	{
+		#region Public Methods and Operators
+
 		/// <summary>
 		/// Main application method.
 		/// </summary>
-		/// <param name="args">Command line arguments.</param>
+		/// <param name="args">
+		/// Command line arguments.
+		/// </param>
 		public static void Main(string[] args)
 		{
 			var builder = new ContainerBuilder();
@@ -28,13 +32,19 @@ namespace Toe.App
 			{
 				Debug.WriteLine(module.GetType().FullName);
 			}
+
 			AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
 			container.Resolve<IToeApplication>().Run();
 		}
 
+		#endregion
+
+		#region Methods
+
 		private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
 		{
-			
 		}
+
+		#endregion
 	}
 }
